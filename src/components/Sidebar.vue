@@ -1,9 +1,7 @@
 <template>
-  <el-aside width="264px" class="sidebar-container">
+  <el-aside width="264px">
     <el-menu
         default-active="2"
-        @open="handleOpen"
-        @close="handleClose"
         class="menu-style"
       >
       <div class="brand">
@@ -13,7 +11,7 @@
           <p class="subtitile">管理后台</p>
         </div>
       </div>
-        <el-menu-item v-for=" item in router.options.routes[0].children" :key="item.path" :index="item.path">
+        <el-menu-item @click="selectMenu" v-for=" item in router.options.routes[0].children" :key="item.path" :index="item.path">
           <el-icon><component :is="getIcon(item.meta.icon)" /></el-icon>
           <span>{{ item.meta.title }}</span>
         </el-menu-item>
@@ -41,23 +39,17 @@ const getIcon = (iconName) => {
 
 const iconUrl = new URL ('@/assets/images/机器人.png', import.meta.url).href
 
-
-const handleOpen = (key) => {
+const selectMenu = (key) => {
   console.log(key)
-}
-const handleClose = (key) => {
-  console.log(key)
+  const currentRoute = router.options.routes[0]
+  // console.log(`${currentRoute.path}/${key.index}`)
+  router.push(`${currentRoute.path}/${key.index}`)
 }
 </script>
 
 <style lang="scss" scoped>
-.sidebar-container{
-  height: 100vh;
-  background-color: #fff;
-}
 .menu-style{
   height: 100%;
-  border-right: none;
   .brand{
     display: flex;
     align-items: center;
