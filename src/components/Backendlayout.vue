@@ -1,6 +1,6 @@
 <template>
-  <div class="common-layout">
-    <el-container>
+  <div class="backend-layout">
+    <el-container class="main-container">
       <Sidebar/>
       <el-container>
         <el-header>
@@ -23,5 +23,8 @@ import Navbar from '@/components/Navbar.vue'
 <style lang="scss" scoped>
 .backend-layout {
   height: 100vh;
+  .main-container{
+    height: 100%;
+  }
 }
 </style>
