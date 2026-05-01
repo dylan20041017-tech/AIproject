@@ -7,6 +7,7 @@
             <component
               v-model="formdata[item.prop]"
               :is="isComp(item.comp)"
+
               :placeholder="item.placeholder"
             >
               <template v-if="item.comp==='select'">
