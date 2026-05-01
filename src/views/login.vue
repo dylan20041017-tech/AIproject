@@ -22,7 +22,7 @@
           <el-button type="primary" size="large" @click="submitForm(ruleFormRef)">登录账户</el-button>
         </div>
         <div class="footer">
-          <p>还没有账户？<router-link to="/auth/register" type="primary">去注册</router-link></p>
+          <p>还没有账户？<router-link to="/auth/register" ">去注册</router-link></p>
         </div>
       </el-form>
     </div>
@@ -31,6 +31,7 @@
 
 <script setup>
 import { ref, reactive } from 'vue'
+import { login } from '@/api/admin'
 
 const ruleFormRef = ref()
 
@@ -47,12 +48,24 @@ const rules = reactive({
     { required: true, message: '请输入密码', trigger: 'blur' }
   ]
 })
-
+// 提交登录表单
 const submitForm = async (formEl) => {
-  if (!formEl) return
+  if (!formEl) return;
+  // valid：布尔值，表示验证是否通过
+  // fields：表单数据对象，包含验证失败的字段的错误信息
   await formEl.validate(async (valid, fields) => {
     if (valid) {
-      console.log(fields)
+      console.log(formData,"for")
+      
+      login(formData).then(data => {
+        // 判断token是否存在
+        if (!data.token) {
+          return console.error('登录失败')
+        }
+        // 登录成功，保存token到localStorage
+        localStorage.setItem('token', data.token)
+        localStorage.setItem('userInfo', JSON.stringify(data.userInfo))
+      })
     }
   })
 }
