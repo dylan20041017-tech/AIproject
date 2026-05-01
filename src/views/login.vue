@@ -32,6 +32,8 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { login } from '@/api/admin'
+import { useRouter } from 'vue-router'
+
 
 const ruleFormRef = ref()
 
@@ -49,6 +51,8 @@ const rules = reactive({
   ]
 })
 // 提交登录表单
+const router = useRouter()
+
 const submitForm = async (formEl) => {
   if (!formEl) return;
   // valid：布尔值，表示验证是否通过
@@ -65,6 +69,12 @@ const submitForm = async (formEl) => {
         // 登录成功，保存token到localStorage
         localStorage.setItem('token', data.token)
         localStorage.setItem('userInfo', JSON.stringify(data.userInfo))
+        //根据用户类型跳转不同页面
+        if(data.userInfo.userType === 2){
+          router.push('/back/dashboard')
+        }else{
+          
+        }
       })
     }
   })

@@ -11,9 +11,13 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { onMounted } from 'vue'
+import { ref,reactive } from 'vue'
 import PageHead from '@/components/PageHead.vue'
 import TableSearch from '../components/TableSearch.vue';
+import { CategoryTree,articlePage } from '@/api/admin'
+
+
 
 const formItems = ref([
   {
@@ -26,23 +30,52 @@ const formItems = ref([
     comp: 'select',
     prop: 'categoryId',
     label: '分类',
+    placeholder: '请选择分类',
+  },
+  {
+    comp: 'select',
+    prop: 'status',
+    label: '状态',
+    placeholder: '请选择状态',
     options: [
       {
-        label: '心理健康基础',
-        value: '1',
+        label: '草稿',
+        value: 0,
       },
       {
-        label: '情绪管理',
-        value: '2',
+        label: '已发布',
+        value: 1,
       },
-    ],
-    placeholder: '请选择分类',
-  }
+      {
+        label: '已下线',
+        value: 2,
+      },
+    ]
+  },
+
+
 ])
 
 const handleSearch = (formData) => {
   console.log(formData)
 }
+// 分类映射
+const categoryMap = reactive({})
+// 分类列表
+const categories = ref([])
+
+onMounted(async() => {
+  const data = await CategoryTree()
+  categories.value = data.map(item => {
+    categoryMap[item.id] = item.categoryName
+    return{
+      label: item.categoryName,
+      value: item.id,
+    }
+  })
+  formItems.value[1].options = categories.value
+})
+
 </script>
 
 <style lang="scss" scoped>
