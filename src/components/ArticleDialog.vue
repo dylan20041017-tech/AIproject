@@ -26,16 +26,20 @@
       <div class="cover-upload">
         <el-upload
           class="avatar-uploader"
-          :action
-          before-upload="beforeUpload"
-          http-request="handleUploadRequest"
+          :action="''"
+          :before-upload="beforeUpload"
+          :http-request="handleUploadRequest"
           accept="image/*"
+          :show-file-list="false"
         >
           <div v-if="!imgUrl" class="cover-placeholder">
             <p>点击上传封面图片</p>
           </div>
           <img v-else :src="imgUrl" alt="封面图片" class="cover-image" />
         </el-upload>
+        <div v-if="imgUrl" class="cover-image-container">
+          <el-button type="danger" size="mini" @click="handleRemove">删除</el-button>
+        </div>
       </div>
     </el-form-item>
   </el-form>
@@ -46,6 +50,8 @@
 import { toFormData } from 'axios'
 import { ref,reactive,computed } from 'vue'
 import { ElMessage } from 'element-plus'
+import { uploadFile } from '@/api/admin'
+import { fileBaseUrl } from '@/config/index.js'
 const props = defineProps({
   modelValue: {
     type: Boolean,
@@ -110,11 +116,25 @@ const beforeUpload = (file)=>{
 }
 
 // 上传封面图片请求
-const handleUploadRequest = ()=>{
+const handleUploadRequest = async({file})=>{
+  //uuid生成
+  const businessId = crypto.randomUUID()
+  const fileRes = await uploadFile(file,{
+    businessId: businessId,
+  })
+  //拼接完整的图片
+  imgUrl.value = fileBaseUrl + fileRes.filePath
+  // 赋值给表单数据
+  FormData.coverImage = fileRes.filePath
 
 }
 // 弹窗关闭
 const handleClose = () => {
+}
+// 删除封面图片
+const handleRemove = () => {
+  imgUrl.value = ''
+  FormData.coverImage = ''
 }
 </script>
 
@@ -128,5 +148,10 @@ const handleClose = () => {
   height: 120px;
   color: #8b949e;
   background: #f6f8fa;
+}
+.cover-image {
+  width: 200px;
+  height: 120px;
+  object-fit: block;
 }
 </style>

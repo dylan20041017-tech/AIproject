@@ -9,3 +9,11 @@ export function CategoryTree(){
 export function articlePage(params){
   return service.get('/knowledge/article/page',{params})
 }
+export function uploadFile(file,businessinfo){
+  const formData = new FormData()
+  formData.append('file', file)
+  formData.append('businessType', "ARTICLE")
+  formData.append('businessId', businessinfo.businessId)
+  formData.append('businessField', "cover")
+  return service.post('/file/upload',formData,{headers:{'Content-Type':'multipart/form-data'}})
+}
