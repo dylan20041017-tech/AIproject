@@ -1,13 +1,13 @@
 <template>
   <el-dialog
-    title="编辑文章"
+    :title="isEdit ? '编辑文章' : '新增文章'"
     v-model="dialogVisible"
     width="50%"
     @close="handleClose"
   >
   <el-form :model="FormData" :rules="rules" ref="formRef" label-width="120px">
     <el-form-item label="文章标题" prop="title">
-      <el-input v-model="FormData.title" placeholder="请输入文章标题" maxlength="200" show-word-limit="true" clearable />
+      <el-input v-model="FormData.title" placeholder="请输入文章标题" maxlength="200" :show-word-limit="true" clearable />
     </el-form-item>
     <el-form-item label="所属分类" prop="categoryId">
       <el-select v-model="FormData.categoryId" placeholder="请选择分类" >
@@ -15,7 +15,7 @@
       </el-select>
     </el-form-item>
     <el-form-item label="文章摘要" prop="summary">
-      <el-input type="textarea" v-model="FormData.summary" placeholder="请输入文章摘要" maxlength="2000" show-word-limit clearable :rows="4" />
+      <el-input type="textarea" v-model="FormData.summary" placeholder="请输入文章摘要" maxlength="2000" :show-word-limit="true" clearable :rows="4" />
     </el-form-item>
     <el-form-item label="标签" prop="tags">
       <el-select v-model="FormData.tagArray" placeholder="请输入文章标签" multiple filterable allow-create style="width: 100%;" >
@@ -38,7 +38,7 @@
           <img v-else :src="imgUrl" alt="封面图片" class="cover-image" />
         </el-upload>
         <div v-if="imgUrl" class="cover-image-container">
-          <el-button type="danger" size="mini" @click="handleRemove">删除</el-button>
+          <el-button type="danger" size="small" @click="handleRemove">删除</el-button>
         </div>
       </div>
     </el-form-item>
@@ -59,14 +59,14 @@
   <template #footer>
     <el-button  @click="btnpreview = !btnpreview">{{ btnpreview.value?'隐藏效果':'预览效果' }}</el-button>
     <el-button @click="handleClose">取消</el-button>
-    <el-button type="primary" @click="handleSubmit" :loading="loading">创建</el-button>
+    <el-button type="primary" @click="handleSubmit" :loading="loading">{{ isEdit ? '更新' : '创建' }}</el-button>
   </template>
   </el-dialog>
 </template>
 
 <script setup >
 import { toFormData } from 'axios'
-import { ref,reactive,computed ,nextTick} from 'vue'
+import { ref,reactive,computed ,nextTick,watch} from 'vue'
 import { ElMessage } from 'element-plus'
 import { uploadFile } from '@/api/admin'
 import { fileBaseUrl } from '@/config/index.js'
@@ -81,6 +81,10 @@ const props = defineProps({
   categories: {
     type: Array,
     default: () => [],
+  },
+  article: {
+    type: Object,
+    default: null,
   }
 })
 const emit = defineEmits(['update:modelValue','success'])
@@ -92,13 +96,28 @@ const dialogVisible = computed({
     emit('update:modelValue', val)
   },
 })
+// 监听文章变化，更新表单数据
+watch(()=>props.article,async (newVal,oldVal) => {
+  if(newVal) {
+    nextTick(() => {
+      Object.assign(FormData,newVal)
+      //使用现有ID
+      businessId.value = newVal.id
+      //封面url
+      imgUrl.value = fileBaseUrl + newVal.coverImage
+    })
+    
+  }
+})
+
+const isEdit=computed(()=>!!props.article?.id)
 // 表单数据
 const FormData = reactive({
   
     "title": "",
     "content": "",
     "coverImage": "",
-    "categoryId": 1,
+    "categoryId": "",
     "summary": "",
     "tags": "",
     "id": ""
@@ -139,13 +158,13 @@ const beforeUpload = (file)=>{
   // 上传前的校验通过，返回 true
   return true
 }
-
+const businessId = ref(null)
 // 上传封面图片请求
 const handleUploadRequest = async({file})=>{
   //uuid生成
-  const businessId = crypto.randomUUID()
+  businessId.value = crypto.randomUUID()
   const fileRes = await uploadFile(file,{
-    businessId: businessId,
+    businessId: businessId.value,
   })
   //拼接完整的图片
   imgUrl.value = fileBaseUrl + fileRes.filePath
@@ -153,13 +172,25 @@ const handleUploadRequest = async({file})=>{
   FormData.coverImage = fileRes.filePath
 
 }
-// 弹窗关闭
-const handleClose = () => {
-}
 // 删除封面图片
 const handleRemove = () => {
   imgUrl.value = ''
   FormData.coverImage = ''
+}
+
+// 弹窗关闭
+const handleClose = () => {
+  // 清空表单数据
+  formRef.value.resetFields()
+  // 清空封面图片
+  handleRemove()
+  // 清空标签数组
+  FormData.tagArray = []
+  // 清空业务ID
+  businessId.value = null
+  emit('update:modelValue', false)
+
+   
 }
 
 // 文章内容改变时触发

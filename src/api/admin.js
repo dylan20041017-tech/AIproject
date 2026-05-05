@@ -20,3 +20,6 @@ export function uploadFile(file, businessinfo) {
 export function createArticle(data) {
   return service.post('/knowledge/article', data)
 }
+export function getArticleDetail(id) {
+  return service.get(`/knowledge/article/${id}`)
+}

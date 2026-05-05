@@ -2,7 +2,7 @@
   <div >
     <PageHead title="知识文章">
       <template #buttons>
-        <el-button type="primary" @click="dialogVisible = true">新增</el-button>
+        <el-button type="primary" @click="handleEdit({})">新增</el-button>
         
       </template>
     </PageHead>
@@ -31,7 +31,7 @@
       
       <el-table-column  label="操作" width="240" fixed="right">
         <template #default="scope">
-          <el-button text type="primary">编辑</el-button>
+          <el-button @click="handleEdit(scope.row)" text type="primary">编辑</el-button>
           <el-button v-if="scope.row.status === 0 || scope.row.status === 2" text type="success" >发布</el-button>
           <el-button v-if="scope.row.status === 1" text type="warning" >下线</el-button>
           <el-button  text type="danger" >删除</el-button>
@@ -45,7 +45,7 @@
       :total="pagination.total"
       @change="handleChange"
     />
-    <ArticleDialog v-model:modelValue="dialogVisible" :categories="categories" @success="handleSuccess"/>
+    <ArticleDialog v-model:modelValue="dialogVisible" :article="currentAriticle" :categories="categories" @success="handleSuccess"/>
   </div>
 </template>
 
@@ -54,7 +54,7 @@ import { onMounted } from 'vue'
 import { ref,reactive } from 'vue'
 import PageHead from '@/components/PageHead.vue'
 import TableSearch from '../components/TableSearch.vue';
-import { CategoryTree,articlePage } from '@/api/admin'
+import { CategoryTree,articlePage,getArticleDetail } from '@/api/admin'
 import ArticleDialog from '../components/ArticleDialog.vue'
 
 
@@ -129,6 +129,21 @@ const categories = ref([])
 const tableData = ref([])
 // 弹窗显示新增和编辑
 const dialogVisible = ref(false)
+// 编辑文章
+const currentAriticle = ref(null)
+const handleEdit =  (row) => {
+  if(!row.id) {
+    // 新增
+    dialogVisible.value = true
+    currentAriticle.value = null
+  }else if(row.id) {
+    // 编辑
+    getArticleDetail(row.id).then(res => {
+      currentAriticle.value = res
+      dialogVisible.value = true
+    })
+  }
+}
 // 新增成功后刷新列表
 const handleSuccess = () => {
   
