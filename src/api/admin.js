@@ -23,3 +23,6 @@ export function createArticle(data) {
 export function getArticleDetail(id) {
   return service.get(`/knowledge/article/${id}`)
 }
+export function updateArticle(id,data) {
+  return service.put(`/knowledge/article/${id}`, data)
+}

@@ -146,7 +146,8 @@ const handleEdit =  (row) => {
 }
 // 新增成功后刷新列表
 const handleSuccess = () => {
-  
+  dialogVisible.value = false
+  handleSearch()
 }
 onMounted(async() => {
   const data = await CategoryTree()

@@ -71,7 +71,9 @@ import { ElMessage } from 'element-plus'
 import { uploadFile } from '@/api/admin'
 import { fileBaseUrl } from '@/config/index.js'
 import RichTextEditor from '@/components/RichTextEditor.vue'
-import { createArticle } from '@/api/admin.js'
+import { createArticle,updateArticle } from '@/api/admin.js'
+
+
 
 const props = defineProps({
   modelValue: {
@@ -113,13 +115,13 @@ watch(()=>props.article,async (newVal,oldVal) => {
 const isEdit=computed(()=>!!props.article?.id)
 // 表单数据
 const FormData = reactive({
-  
     "title": "",
     "content": "",
     "coverImage": "",
     "categoryId": "",
     "summary": "",
     "tags": "",
+    "tagArray": [],
     "id": ""
 })
 
@@ -224,7 +226,19 @@ const handleSubmit =() => {
       tags: FormData.tagArray.join(','),
     }
     delete submitData.tagArray
-    createArticle(submitData).then(res=>{
+    if(!isEdit.value){
+      submitData.id = businessId.value
+      createArticle(submitData).then(res=>{
+        loading.value = false
+        emit('success')
+      })
+    }else{
+      updateArticle(props.article.id,submitData).then(res=>{
+        loading.value = false
+        emit('success')
+      })
+    }
+    updateArticle(businessId.value,submitData).then(res=>{
       loading.value = false
       emit('success')
     })
