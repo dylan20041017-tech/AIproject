@@ -42,16 +42,37 @@
         </div>
       </div>
     </el-form-item>
+    <el-form-item label="文章内容" prop="content">
+      <RichTextEditor v-model="FormData.content"
+      placeholder="请输入文章内容"
+      :maxCharCount="5000"
+      @change="handleContentChange" 
+      @created="handleEditorCreated"
+      min-height="400px"
+      />
+    </el-form-item>
   </el-form>
+  <div v-if="btnpreview">
+    <h2>内容预览</h2>
+    <div v-html="FormData.content"></div>
+  </div>
+  <template #footer>
+    <el-button  @click="btnpreview = !btnpreview">{{ btnpreview.value?'隐藏效果':'预览效果' }}</el-button>
+    <el-button @click="handleClose">取消</el-button>
+    <el-button type="primary" @click="handleSubmit" :loading="loading">创建</el-button>
+  </template>
   </el-dialog>
 </template>
 
 <script setup >
 import { toFormData } from 'axios'
-import { ref,reactive,computed } from 'vue'
+import { ref,reactive,computed ,nextTick} from 'vue'
 import { ElMessage } from 'element-plus'
 import { uploadFile } from '@/api/admin'
 import { fileBaseUrl } from '@/config/index.js'
+import RichTextEditor from '@/components/RichTextEditor.vue'
+import { createArticle } from '@/api/admin.js'
+
 const props = defineProps({
   modelValue: {
     type: Boolean,
@@ -62,7 +83,7 @@ const props = defineProps({
     default: () => [],
   }
 })
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(['update:modelValue','success'])
 const dialogVisible = computed({
   get() {
     return props.modelValue
@@ -90,6 +111,10 @@ const rules = reactive({
   ],
   categoryId: [
     { required: true, message: '请选择分类', trigger: 'change' },
+  ],
+  content: [
+    { required: true, message: '请输入文章内容', trigger: 'change' },
+    { max: 5000, message: '文章内容最多 5000 个字符', trigger: 'change' },
   ],
 })
 const commonTags = [
@@ -136,6 +161,44 @@ const handleRemove = () => {
   imgUrl.value = ''
   FormData.coverImage = ''
 }
+
+// 文章内容改变时触发
+const handleContentChange = (data) => {
+  FormData.content = data.html
+  
+}
+// 文章内容改变时触发
+const editorInstance = ref(null)
+const handleEditorCreated = (editor) => {
+  editorInstance.value = editor
+  //编辑
+  if (!FormData.content&&editor) {
+    nextTick(()=>{
+      editor.setHtml(FormData.content)
+    })   
+  }
+}
+const btnpreview = ref(false)
+// 提交表单
+const formRef = ref(null)
+const loading = ref(false)
+const handleSubmit =() => {
+   formRef.value.validate((valid,fields) => {
+    if (valid) {
+      loading.value = true
+     
+    } 
+    const submitData = {
+      ...FormData,
+      tags: FormData.tagArray.join(','),
+    }
+    delete submitData.tagArray
+    createArticle(submitData).then(res=>{
+      loading.value = false
+      emit('success')
+    })
+  }) 
+} 
 </script>
 
 <style scoped lang="scss">
