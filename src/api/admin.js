@@ -35,3 +35,6 @@ export function deleteArticle(id) {
 export function getConsultationPage(params) {
   return service.get('/psychological-chat/sessions', { params })
 }
+export function getSessionDetail(sessionId) {
+  return service.get(`/psychological-chat/sessions/${sessionId}/messages`)
+}
