@@ -41,3 +41,6 @@ export function getSessionDetail(sessionId) {
 export function getEmotionalLogPage(params) {
   return service.get('/emotion-diary/admin/page', { params })
 }
+export function deleteEmotional(id) {
+  return service.delete(`/emotion-diary/admin/${id}`)
+}

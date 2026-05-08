@@ -8,7 +8,7 @@
     </PageHead>
     <TableSearch :formItem="formItems" @search="handleSearch"/>
     <el-table :data="tableData" style="width: 100%;margin-top: 25px;">
-      <el-table-column  width="500" prop="title"  fixed="left">
+      <el-table-column   prop="title"  fixed="left">
         <template #default="scope">
           <div style="display: flex;align-items: center;">
             <el-icon><timer/></el-icon>
