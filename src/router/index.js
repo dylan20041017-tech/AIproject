@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import BackendLayout from '@/components/backendlayout.vue'
 import AuthLayout from '@/components/AuthLayout.vue'
+import FrontendLayout from '@/components/FrontendLayout.vue'
 
 const backendRouter = [
   {
@@ -67,10 +68,33 @@ const backendRouter = [
     ],
   }
 ]
-
+const frontendRouter = [
+  {
+    path: '/',
+    component: FrontendLayout,
+    children: [
+      {
+        path: '',
+        component: () => import('@/views/home.vue'),
+      },
+      {
+        path: 'consultation',
+        component: () => import('@/views/consultation.vue'),
+      },
+      {
+        path: 'emotion-diary',
+        component: () => import('@/views/emotionDiary.vue'),
+      },
+      {
+        path: 'knowledge',
+        component: () => import('@/views/frontendknowledge.vue'),
+      },
+    ],
+  },
+]
 const router = createRouter({
   history: createWebHistory(),
-  routes: backendRouter,
+  routes: [...backendRouter, ...frontendRouter],
 })
 // 路由前置守卫
 router.beforeEach((to, from, next) => {
@@ -78,21 +102,21 @@ router.beforeEach((to, from, next) => {
   if (token) {
     const userinfo = JSON.parse(localStorage.getItem('userInfo'))
     if (userinfo.userType == 2) {
-     if (to.path.startsWith('/back')) {
+      if (to.path.startsWith('/back')) {
         next()
-     } else {
-       next('/back/dashboard')
-     }
+      } else {
+        next('/back/dashboard')
+      }
     } else if (userinfo.userType == 1) {
       next()
     }
-  }else{
+  } else {
     if (to.path.startsWith('/back')) {
-    //如果是后台首页，直接跳转到登录页面
+      //如果是后台首页，直接跳转到登录页面
       next('/auth/login')
-   } else {
-    next()
-   }
+    } else {
+      next()
+    }
   }
 })
 export default router
