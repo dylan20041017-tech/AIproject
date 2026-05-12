@@ -108,7 +108,12 @@ router.beforeEach((to, from, next) => {
         next('/back/dashboard')
       }
     } else if (userinfo.userType == 1) {
-      next()
+      //如果是前端用户，只能返回前台路由
+      if (to.path.startsWith('/back')||to.path.startsWith('/auth')) {
+        next('/')
+      } else {
+        next()
+      }
     }
   } else {
     if (to.path.startsWith('/back')) {
