@@ -109,7 +109,7 @@ router.beforeEach((to, from, next) => {
       }
     } else if (userinfo.userType == 1) {
       //如果是前端用户，只能返回前台路由
-      if (to.path.startsWith('/back')||to.path.startsWith('/auth')) {
+      if (to.path.startsWith('/back') || to.path.startsWith('/auth')) {
         next('/')
       } else {
         next()
@@ -119,9 +119,6 @@ router.beforeEach((to, from, next) => {
     // 未登录用户
     if (to.path.startsWith('/back')) {
       // 访问后台，跳转到登录
-      next('/auth/login')
-    } else if (to.path === '/consultation' || to.path === '/emotion-diary') {
-      // 访问需要登录的前台页面，跳转到登录
       next('/auth/login')
     } else {
       next()

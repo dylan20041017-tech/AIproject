@@ -59,8 +59,6 @@ const submitForm = async (formEl) => {
   // fields：表单数据对象，包含验证失败的字段的错误信息
   await formEl.validate(async (valid, fields) => {
     if (valid) {
-      console.log(formData,"for")
-      
       login(formData).then(data => {
         // 判断token是否存在
         if (!data.token) {

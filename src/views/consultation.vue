@@ -74,6 +74,7 @@
 import { ref, onMounted, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { startSession } from '@/api/frontend'
+import { ElMessage } from 'element-plus'
 const router = useRouter()
 
 
@@ -83,6 +84,7 @@ const iconUrl2 = new URL('@/assets/images/like.png', import.meta.url).href
 
 // 新建会话
 const createNewFrontendSession =  () => {
+  //创建新的会话对象
   const newSession =  startSession({
     sessionId: `temp_${Date.now()}`,
     status: `TEMP`,
@@ -103,6 +105,50 @@ const handleKeydown = (e) => {
   if (e.key === 'Enter' && currentSession.value) {
     e.preventDefault()
   }
+}
+// 发送消息
+const sendMessage = () => {
+  if (!userMessage.value.trim()) return
+  if (isAityping.value) {
+    ElMessage.error('AI助手正在发送中')
+    return
+  }
+  const message = userMessage.value.trim()
+  userMessage.value = ''
+  //如果没有会话或者临时会话，创建一个新会话
+  if (currentSession.value.status === 'TEMP') {
+    startNewSession(message)
+  }
+  
+}
+const startNewSession = (message) => {
+  //构建会话参数
+  const sessionParams = {
+    initialMessage: message,
+  }
+  if(currentSession.value.sessionTitle==="新对话") {
+    sessionParams.sessionTitle = `宁渡AI助手 - ${new Date().toLocaleString()}`
+  }else {
+    /// 旧会话，保持会话标题
+    sessionParams.sessionTitle = currentSession.value.sessionTitle
+  }
+  startSession(sessionParams).then(res => {
+    //后端处理返回的会话对象转为前端会话格式
+    const sessionData = {
+      sessionId: res.sessionId,
+      status: res.status,
+      sessionTitle: sessionParams.sessionTitle,  
+    }
+    //如果当前是临时会话，更新会话数据
+    if(currentSession.value && currentSession.value.status === 'TEMP') {
+      //更新为正式会话
+      Object.assign(currentSession.value, sessionData)
+    }else {
+      //创建新会话
+      currentSession.value = sessionData
+    }
+  })
+  
 }
 onMounted(() => {
   // 初始化时创建一个新会话
