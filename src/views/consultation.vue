@@ -85,7 +85,7 @@ const iconUrl2 = new URL('@/assets/images/like.png', import.meta.url).href
 // 新建会话
 const createNewFrontendSession =  () => {
   //创建新的会话对象
-  const newSession =  startSession({
+  const newSession =  ({
     sessionId: `temp_${Date.now()}`,
     status: `TEMP`,
     sessionTitle: `新对话`,
