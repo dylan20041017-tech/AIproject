@@ -116,8 +116,12 @@ router.beforeEach((to, from, next) => {
       }
     }
   } else {
+    // 未登录用户
     if (to.path.startsWith('/back')) {
-      //如果是后台首页，直接跳转到登录页面
+      // 访问后台，跳转到登录
+      next('/auth/login')
+    } else if (to.path === '/consultation' || to.path === '/emotion-diary') {
+      // 访问需要登录的前台页面，跳转到登录
       next('/auth/login')
     } else {
       next()

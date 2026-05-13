@@ -47,6 +47,25 @@
         </div>
       </div>
     </div>
+    <!-- 消息输入区 -->
+     <div class="chat-input">
+      <div class="input-container">
+        <el-input 
+        v-model="userMessage" 
+        placeholder="请输入您的问题" 
+        type="textarea" 
+        :rows="3" clearable 
+        @keydown.enter="handleKeydown"
+        class="message-input"
+        :disabled="isAityping">
+      </el-input>
+      </div>
+        <el-button type="primary" class="send-btn" @click="sendMessage">
+          <el-icon>
+            <Promotion />
+          </el-icon>
+        </el-button>
+     </div>
     </div>
   </div>
 </template>
@@ -54,17 +73,41 @@
 <script setup>
 import { ref, onMounted, reactive } from 'vue'
 import { useRouter } from 'vue-router'
+import { startSession } from '@/api/frontend'
 const router = useRouter()
 
 
 const iconUrl = new URL('@/assets/images/robot-fill.png', import.meta.url).href
 const iconUrl2 = new URL('@/assets/images/like.png', import.meta.url).href
 
-const createNewFrontendSession = () => {
-  
+
+// 新建会话
+const createNewFrontendSession =  () => {
+  const newSession =  startSession({
+    sessionId: `temp_${Date.now()}`,
+    status: `TEMP`,
+    sessionTitle: `新对话`,
+  })
+  currentSession.value = newSession
 }
+//定义一个当前会话对象
+const currentSession = ref(null)
 // 聊天消息区域
 const message = ref([])
+// 用户输入的消息
+const userMessage = ref('')
+// 是否正在发送消息
+const isAityping = ref(false)
+// 处理键盘事件
+const handleKeydown = (e) => {
+  if (e.key === 'Enter' && currentSession.value) {
+    e.preventDefault()
+  }
+}
+onMounted(() => {
+  // 初始化时创建一个新会话
+  createNewFrontendSession()
+})
 </script>
 
 <style scoped lang="scss">

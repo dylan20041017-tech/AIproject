@@ -3,3 +3,9 @@ import service from '@/untils/request'
 export const register = (data) => {
   return service.post('/user/add',data)
 }
+// 新建会话
+export const startSession = (data) => {
+  return service.post('/psychological-chat/session/start',data)
+}
+
+
