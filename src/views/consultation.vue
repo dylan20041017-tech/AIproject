@@ -87,19 +87,27 @@
             </div>
           </div>
         </div>
-      </div>
-      <!-- 消息输入区 -->
-      <div class="chat-input">
-        <div class="input-container">
-          <el-input v-model="userMessage" placeholder="请输入您的问题" type="textarea" :rows="3" clearable
-            @keydown.enter="handleKeydown" class="message-input" :disabled="isAityping">
-          </el-input>
+        <!-- 消息列表 -->
+        <div v-for="msg in message" :key="msg.id" class="message-item"
+          :class="msg.senderType === 1 ? 'user-message' : 'ai-message'">
+          <div class="message-avatar">
+            <el-image v-if="msg.senderType === 1" :src="iconUrl3" style="width: 18px; height: 18px;" />
+            <el-image v-if="msg.senderType === 2" :src="iconUrl" style="width: 18px; height: 18px;" />
+          </div>
         </div>
-        <el-button type="primary" class="send-btn" @click="sendMessage">
-          <el-icon>
-            <Promotion />
-          </el-icon>
-        </el-button>
+        <!-- 消息输入区 -->
+        <div class="chat-input">
+          <div class="input-container">
+            <el-input v-model="userMessage" placeholder="请输入您的问题" type="textarea" :rows="3" clearable
+              @keydown.enter="handleKeydown" class="message-input" :disabled="isAityping">
+            </el-input>
+          </div>
+          <el-button type="primary" class="send-btn" @click="sendMessage">
+            <el-icon>
+              <Promotion />
+            </el-icon>
+          </el-button>
+        </div>
       </div>
     </div>
   </div>
@@ -108,7 +116,7 @@
 <script setup>
 import { ref, onMounted, reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import { startSession, getSessionList } from '@/api/frontend'
+import { startSession, getSessionList, deleteSession, getSessionDetail } from '@/api/frontend'
 import { ElMessage } from 'element-plus'
 import { ChatRound } from '@element-plus/icons-vue'
 const router = useRouter()
@@ -116,7 +124,7 @@ const router = useRouter()
 
 const iconUrl = new URL('@/assets/images/robot-fill.png', import.meta.url).href
 const iconUrl2 = new URL('@/assets/images/like.png', import.meta.url).href
-
+const iconUrl3 = new URL('@/assets/images/user.png', import.meta.url).href
 
 // 新建会话
 const createNewFrontendSession = () => {
@@ -130,10 +138,11 @@ const createNewFrontendSession = () => {
 }
 //定义一个当前会话对象
 const currentSession = ref(null)
+// 显示历史会话列表
+const message = ref([])
 // 会话列表
 const sessionList = ref([])
-// 聊天消息区域
-const message = ref([])
+
 // 用户输入的消息
 const userMessage = ref('')
 // 是否正在发送消息
@@ -200,11 +209,19 @@ const getSessionPage = () => {
   })
 }
 // 处理会话点击事件
-const handleSessionClick = () => {
-
+const handleSessionClick = (session) => {
+  console.log(session)
+  currentSession.value = session
+  getSessionDetail(session.id).then(res => {
+    message.value = res
+  })
 }
-const handleDeleteSession = () => {
- 
+
+const handleDeleteSession = (sessionId) => {
+  deleteSession(sessionId).then(res => {
+    ElMessage.success('会话删除成功')
+    getSessionPage()
+  })
 }
 onMounted(() => {
   // 初始化时获取会话列表
