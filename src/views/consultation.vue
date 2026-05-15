@@ -76,7 +76,7 @@
       <!-- 聊天消息区域 -->
       <div class="chat-messages">
         <!-- 欢迎用语 -->
-        <div v-if="message.length === 0" class="message-item ai-message">
+        <div v-if="messages.length === 0" class="message-item ai-message">
           <div class="message-avatar">
             <el-image :src="iconUrl" alt="logo" style="width: 18px; height: 18px;" />
           </div>
@@ -88,7 +88,7 @@
           </div>
         </div>
       <!-- 消息列表 -->
-      <div v-for="msg in message" :key="msg.id" class="message-item"
+      <div v-for="msg in messages" :key="msg.id" class="message-item"
         :class="msg.senderType === 1 ? 'user-message' : 'ai-message'">
         <div class="message-avatar">
           <el-image v-if="msg.senderType === 1" :src="iconUrl3" style="width: 18px; height: 18px;" />
@@ -145,6 +145,7 @@ import { startSession, getSessionList, deleteSession, getSessionDetail } from '@
 import { ElMessage } from 'element-plus'
 import { ChatRound } from '@element-plus/icons-vue'
 import MarkdownRenderer from '@/components/MarkdownRenderer.vue'
+import { fetchEventSource } from '@microsoft/fetch-event-source'
 
 const router = useRouter()
 
@@ -166,7 +167,7 @@ const createNewFrontendSession = () => {
 //定义一个当前会话对象
 const currentSession = ref(null)
 // 显示历史会话列表
-const message = ref([])
+const messages = ref([])
 // 会话列表
 const sessionList = ref([])
 
@@ -192,7 +193,17 @@ const sendMessage = () => {
   //如果没有会话或者临时会话，创建一个新会话
   if (currentSession.value.status === 'TEMP') {
     startNewSession(message)
-  }
+  }else{
+    //继续现有对话
+    messages.value.push({
+      id: Date.now(),
+      senderType: 1,
+      content: message,
+      createdAt: new Date().toISOString(),
+    })
+    //开始流式对话
+    startAiResponse(currentSession.value.sessionId,message)
+   }
 
 }
 const startNewSession = (message) => {
@@ -223,8 +234,99 @@ const startNewSession = (message) => {
     }
     // 刷新会话列表
     getSessionPage()
+    //添加初始用户消息
+    messages.value.push({
+      id: Date.now(),
+      senderType: 1,
+      content: message,
+      createdAt: new Date().toISOString(),
+    })
+    //开始流式对话
+    startAiResponse(currentSession.value.sessionId,message)
   })
 }
+//************************************************** */
+const startAiResponse = (sessionId, userMessage) => {
+  if (isAiTyping.value) {
+    ElMessage.error('AI助手正在发送中，稍后再试。')
+    return
+  }
+
+  isAiTyping.value = true;
+
+  const aiMessage = {
+    id: `ai_${Date.now()}_${Math.random().toString(36).substring(2,9)}`,
+    senderType: 2,
+    content: '',
+    createdAt: new Date().toISOString(),
+  };
+  messages.value.push(aiMessage)
+
+  //调用流式接口
+  const ctrl = new AbortController()
+  const token = localStorage.getItem('token');
+  fetchEventSource('/api/psychological-chat/stream', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Token: token || '',
+      Accept: 'text/event-stream',
+    },
+    body: JSON.stringify({
+      sessionId,
+      userMessage,
+    }),
+    signal: ctrl.signal,
+    onopen(response) {
+      console.log(response);
+      if (response.headers.get('Content-Type') !== 'text/event-stream') {
+        ElMessage.error('服务器返回的不是事件流格式')
+      }
+    },
+    onmessage(event) {
+      const raw = event.data.trim();
+      if (!raw) return;
+      const eventName = event.event
+      //当前ai消息
+      const aiMessage = messages.value[messages.value.length - 1]
+      if (eventName === 'done') {
+        isAiTyping.value = false;
+        ctrl.abort()
+        return;
+      }
+
+      try {
+        const payload = JSON.parse(raw);
+        if (String(payload.code) === '200' && payload.data && payload.data.content) {
+          aiMessage.content += payload.data.content;
+        } else if (!ok) {
+          //错误回复显示
+          handleError(payload,message.content||'AI回复失败')
+        } 
+      } catch {
+        
+      }
+    },
+    onerror(err) {
+      handleError(err||'AI回复失败')
+      throw err;
+    },
+    onclose() {
+      //情绪分析
+    }
+  });
+};
+//*********错误处理函数
+const handleError = (error) => {
+  const aiMessage = messages.value[messages.value.length - 1]
+  if (aiMessage) {
+    aiMessage.content =  'AI回复失败';
+  }
+  isAiTyping.value = false;
+  ElMessage.error('AI回复失败')
+}
+// ***********************************************
+
 // 获取会话列表
 const getSessionPage = () => {
   getSessionList({
@@ -238,8 +340,15 @@ const getSessionPage = () => {
 // 处理会话点击事件
 const handleSessionClick = (session) => {
   getSessionDetail(session.id).then(res => {
-    message.value = res
+    messages.value = res
   })
+  //更新当前会话数据
+  const sessionData={
+    sessionId: "session_"+session.id,
+    status: "ACTIVE",
+    sessionTitle: session.sessionTitle,
+  }
+  currentSession.value = sessionData
 }
 
 const handleDeleteSession = (sessionId) => {
