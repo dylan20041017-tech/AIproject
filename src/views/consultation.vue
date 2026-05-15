@@ -1,5 +1,6 @@
 <template>
   <div class="consultation-container">
+
     <div class="sidebar">
       <!-- ai助手信息栏 -->
       <div class="ai-assistant-info">
@@ -54,6 +55,7 @@
         </div>
       </div>
     </div>
+
     <div class="chat-main">
       <div class="chat-header">
         <div class="header-left">
@@ -82,56 +84,58 @@
             <div class="message-bubble">
               <p>欢迎来到宁渡AI助手，我是专业的心理健康建议助手。</p>
             </div>
-            <div class="message-time">
-              10:00
-            </div>
+            <div class="message-time">10:00</div>
           </div>
         </div>
-        <!-- 消息列表 -->
-        <div v-for="msg in message" :key="msg.id" class="message-item"
-          :class="msg.senderType === 1 ? 'user-message' : 'ai-message'">
-          <div class="message-avatar">
-            <el-image v-if="msg.senderType === 1" :src="iconUrl3" style="width: 18px; height: 18px;" />
-            <el-image v-if="msg.senderType === 2" :src="iconUrl" style="width: 18px; height: 18px;" />
-          </div>
-          <div class="message-content">
-            <div class="message-bubble">
-              <!-- ai助手回复中显示的点点 -->
-              <div v-if="msg.senderType === 2 && isAityping && !msg.content" class="typing-indicator">
-                <div class="typing-dot"></div>
-                <div class="typing-dot"></div>
-                <div class="typing-dot"></div>
-              </div>
-              <!-- ai错误提示 -->
-              <div v-else-if="msg.isError" class="error-message">
-                <p>{{ msg.content }}</p>
-              </div>
-              <!-- ai回复 -->
-                <MarkdownRenderer v-if="msg.senderType === 2 && !msg.isError" :content="msg.content" :is-ai-message="true" />
-                <p v-else-if="msg.content" v-html="formatMessageContent(msg.content)"></p>
-            </div>
-            <div class="message-time">
-              {{ msg.senderType === 2 && isAityping ? '正在回复中' : msg.createdAt }}
-            </div>
-          </div>
+      <!-- 消息列表 -->
+      <div v-for="msg in message" :key="msg.id" class="message-item"
+        :class="msg.senderType === 1 ? 'user-message' : 'ai-message'">
+        <div class="message-avatar">
+          <el-image v-if="msg.senderType === 1" :src="iconUrl3" style="width: 18px; height: 18px;" />
+          <el-image v-if="msg.senderType === 2" :src="iconUrl" style="width: 18px; height: 18px;" />
         </div>
-      </div>
-        <!-- 消息输入区 -->
-        <div class="chat-input">
-          <div class="input-container">
-            <el-input v-model="userMessage" placeholder="请输入您的问题" type="textarea" :rows="3" clearable
-              @keydown.enter="handleKeydown" class="message-input" :disabled="isAityping">
-            </el-input>
+        <div class="message-content">
+          <div class="message-bubble">
+            <!-- ai助手回复中显示的点点 -->
+            <div v-if="msg.senderType === 2 && isAiTyping && !msg.content" class="typing-indicator">
+              <div class="typing-dot"></div>
+              <div class="typing-dot"></div>
+              <div class="typing-dot"></div>
+            </div>
+            <!-- ai错误提示 -->
+            <div v-else-if="msg.isError" class="error-message">
+              <p>{{ msg.content }}</p>
+            </div>
+            <!-- ai回复 -->
+            <MarkdownRenderer v-if="msg.senderType === 2 && !msg.isError" :content="msg.content"
+              :is-ai-message="true" />
+            <p v-else-if="msg.content" v-html="formatMessageContent(msg.content)"></p>
           </div>
-          <el-button type="primary" class="send-btn" @click="sendMessage">
-            <el-icon>
-              <Promotion />
-            </el-icon>
-          </el-button>
+          <div class="message-time">
+            {{ msg.senderType === 2 && isAiTyping ? '正在回复中' : msg.createdAt }}
+          </div>
         </div>
       </div>
     </div>
-  
+      <!-- 消息输入区 -->
+      <div class="chat-input">
+        <div class="input-container">
+          <el-input v-model="userMessage" placeholder="请输入想要分享的内容..." type="textarea" :rows="3" :disabled="isAiTyping"
+            @keydown="handleKeyDown" class="message-input" clearable></el-input>
+          <div class="input-footer">
+          <span>按Enter换行，Shift+Enter发送</span>
+          <span>{{ userMessage.length }}/500</span>
+        </div>
+        </div>
+        
+        <el-button :disabled="!userMessage.trim() || userMessage.length > 500" type="primary" class="send-btn" @click="sendMessage">
+          <el-icon>
+            <Promotion />
+          </el-icon>
+        </el-button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -169,9 +173,9 @@ const sessionList = ref([])
 // 用户输入的消息
 const userMessage = ref('')
 // 是否正在发送消息
-const isAityping = ref(false)
+const isAiTyping = ref(false)
 // 处理键盘事件
-const handleKeydown = (e) => {
+const handleKeyDown = (e) => {
   if (e.key === 'Enter' && currentSession.value) {
     e.preventDefault()
   }
@@ -179,7 +183,7 @@ const handleKeydown = (e) => {
 // 发送消息
 const sendMessage = () => {
   if (!userMessage.value.trim()) return
-  if (isAityping.value) {
+  if (isAiTyping.value) {
     ElMessage.error('AI助手正在发送中')
     return
   }
