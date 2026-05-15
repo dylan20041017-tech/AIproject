@@ -12,6 +12,47 @@
           在线服务中
         </div>
       </div>
+      <!-- 会话列表 -->
+      <div class="session-history">
+        <h4 class="session-title">会话列表</h4>
+        <div class="session-list">
+          <div class="session-item" v-for="session in sessionList" :key="session.id"
+            @click="handleSessionClick(session)">
+            <div class="session-info">
+              <div class="session-title">
+                <span class="session-">{{ session.sessionTitle }}</span>
+                <div class="session-meta">
+                  <span class="session-time">{{ session.startTime }}</span>
+                </div>
+                <div class="session-preview">
+                  {{ session.lastMessageContent }}
+                </div>
+                <div class="session-stats">
+                  <span>
+                    <el-icon>
+                      <ChatRound />
+                    </el-icon>
+                    {{ session.messageCount || 0 }}
+                  </span>
+                  <span>
+                    <el-icon>
+                      <Clock />
+                    </el-icon>
+                    {{ session.durationMinutes || 0 }} 分钟
+                  </span>
+                </div>
+              </div>
+              <div class="session-actions">
+                <el-button text type="danger" size="small" @click="handleDeleteSession(session.id)">
+                  <el-icon>
+                    <DeleteFilled />
+                  </el-icon>
+                </el-button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="chat-main">
       <div class="chat-header">
@@ -24,48 +65,42 @@
             <p>获取专业的心理健康建议</p>
           </div>
         </div>
-        <el-button  circle @click="createNewFrontendSession" title="创建新会话">
-            <el-icon>
-              <Plus />
-            </el-icon>
-          </el-button>
+        <el-button circle @click="createNewFrontendSession" title="创建新会话">
+          <el-icon>
+            <Plus />
+          </el-icon>
+        </el-button>
       </div>
       <!-- 聊天消息区域 -->
-    <div class="chat-messages">
-      <!-- 欢迎用语 -->
-      <div v-if="message.length === 0"  class="message-item ai-message">
-        <div class="message-avatar">
-          <el-image :src="iconUrl" alt="logo" style="width: 18px; height: 18px;" />
-        </div>
-        <div class="message-content">
-          <div class="message-bubble">
-            <p>欢迎来到宁渡AI助手，我是专业的心理健康建议助手。</p>
+      <div class="chat-messages">
+        <!-- 欢迎用语 -->
+        <div v-if="message.length === 0" class="message-item ai-message">
+          <div class="message-avatar">
+            <el-image :src="iconUrl" alt="logo" style="width: 18px; height: 18px;" />
           </div>
-          <div class="message-time">
-            10:00
+          <div class="message-content">
+            <div class="message-bubble">
+              <p>欢迎来到宁渡AI助手，我是专业的心理健康建议助手。</p>
+            </div>
+            <div class="message-time">
+              10:00
+            </div>
           </div>
         </div>
       </div>
-    </div>
-    <!-- 消息输入区 -->
-     <div class="chat-input">
-      <div class="input-container">
-        <el-input 
-        v-model="userMessage" 
-        placeholder="请输入您的问题" 
-        type="textarea" 
-        :rows="3" clearable 
-        @keydown.enter="handleKeydown"
-        class="message-input"
-        :disabled="isAityping">
-      </el-input>
-      </div>
+      <!-- 消息输入区 -->
+      <div class="chat-input">
+        <div class="input-container">
+          <el-input v-model="userMessage" placeholder="请输入您的问题" type="textarea" :rows="3" clearable
+            @keydown.enter="handleKeydown" class="message-input" :disabled="isAityping">
+          </el-input>
+        </div>
         <el-button type="primary" class="send-btn" @click="sendMessage">
           <el-icon>
             <Promotion />
           </el-icon>
         </el-button>
-     </div>
+      </div>
     </div>
   </div>
 </template>
@@ -73,8 +108,9 @@
 <script setup>
 import { ref, onMounted, reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import { startSession } from '@/api/frontend'
+import { startSession, getSessionList } from '@/api/frontend'
 import { ElMessage } from 'element-plus'
+import { ChatRound } from '@element-plus/icons-vue'
 const router = useRouter()
 
 
@@ -83,9 +119,9 @@ const iconUrl2 = new URL('@/assets/images/like.png', import.meta.url).href
 
 
 // 新建会话
-const createNewFrontendSession =  () => {
+const createNewFrontendSession = () => {
   //创建新的会话对象
-  const newSession =  ({
+  const newSession = ({
     sessionId: `temp_${Date.now()}`,
     status: `TEMP`,
     sessionTitle: `新对话`,
@@ -94,6 +130,8 @@ const createNewFrontendSession =  () => {
 }
 //定义一个当前会话对象
 const currentSession = ref(null)
+// 会话列表
+const sessionList = ref([])
 // 聊天消息区域
 const message = ref([])
 // 用户输入的消息
@@ -119,16 +157,16 @@ const sendMessage = () => {
   if (currentSession.value.status === 'TEMP') {
     startNewSession(message)
   }
-  
+
 }
 const startNewSession = (message) => {
   //构建会话参数
   const sessionParams = {
     initialMessage: message,
   }
-  if(currentSession.value.sessionTitle==="新对话") {
+  if (currentSession.value.sessionTitle === "新对话") {
     sessionParams.sessionTitle = `宁渡AI助手 - ${new Date().toLocaleString()}`
-  }else {
+  } else {
     /// 旧会话，保持会话标题
     sessionParams.sessionTitle = currentSession.value.sessionTitle
   }
@@ -137,20 +175,40 @@ const startNewSession = (message) => {
     const sessionData = {
       sessionId: res.sessionId,
       status: res.status,
-      sessionTitle: sessionParams.sessionTitle,  
+      sessionTitle: sessionParams.sessionTitle,
     }
     //如果当前是临时会话，更新会话数据
-    if(currentSession.value && currentSession.value.status === 'TEMP') {
+    if (currentSession.value && currentSession.value.status === 'TEMP') {
       //更新为正式会话
       Object.assign(currentSession.value, sessionData)
-    }else {
+    } else {
       //创建新会话
       currentSession.value = sessionData
     }
+    // 刷新会话列表
+    getSessionPage()
   })
-  
+}
+// 获取会话列表
+const getSessionPage = () => {
+  getSessionList({
+    pageNum: 1,
+    pageSize: 10,
+  }).then(res => {
+    console.log(res)
+    sessionList.value = res.records
+  })
+}
+// 处理会话点击事件
+const handleSessionClick = () => {
+
+}
+const handleDeleteSession = () => {
+ 
 }
 onMounted(() => {
+  // 初始化时获取会话列表
+  getSessionPage()
   // 初始化时创建一个新会话
   createNewFrontendSession()
 })
