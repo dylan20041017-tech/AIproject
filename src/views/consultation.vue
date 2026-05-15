@@ -94,7 +94,28 @@
             <el-image v-if="msg.senderType === 1" :src="iconUrl3" style="width: 18px; height: 18px;" />
             <el-image v-if="msg.senderType === 2" :src="iconUrl" style="width: 18px; height: 18px;" />
           </div>
+          <div class="message-content">
+            <div class="message-bubble">
+              <!-- ai助手回复中显示的点点 -->
+              <div v-if="msg.senderType === 2 && isAityping && !msg.content" class="typing-indicator">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+              </div>
+              <!-- ai错误提示 -->
+              <div v-else-if="msg.isError" class="error-message">
+                <p>{{ msg.content }}</p>
+              </div>
+              <!-- ai回复 -->
+                <MarkdownRenderer v-if="msg.senderType === 2 && !msg.isError" :content="msg.content" :is-ai-message="true" />
+                <p v-else-if="msg.content" v-html="formatMessageContent(msg.content)"></p>
+            </div>
+            <div class="message-time">
+              {{ msg.senderType === 2 && isAityping ? '正在回复中' : msg.createdAt }}
+            </div>
+          </div>
         </div>
+      </div>
         <!-- 消息输入区 -->
         <div class="chat-input">
           <div class="input-container">
@@ -110,7 +131,7 @@
         </div>
       </div>
     </div>
-  </div>
+  
 </template>
 
 <script setup>
@@ -119,6 +140,8 @@ import { useRouter } from 'vue-router'
 import { startSession, getSessionList, deleteSession, getSessionDetail } from '@/api/frontend'
 import { ElMessage } from 'element-plus'
 import { ChatRound } from '@element-plus/icons-vue'
+import MarkdownRenderer from '@/components/MarkdownRenderer.vue'
+
 const router = useRouter()
 
 
@@ -204,14 +227,13 @@ const getSessionPage = () => {
     pageNum: 1,
     pageSize: 10,
   }).then(res => {
+    console.log(res)
     sessionList.value = res.records
   })
 }
 // 处理会话点击事件
 const handleSessionClick = (session) => {
-  console.log(session)
   getSessionDetail(session.id).then(res => {
-    console.log('接口返回数据:', res)
     message.value = res
   })
 }
@@ -221,6 +243,10 @@ const handleDeleteSession = (sessionId) => {
     ElMessage.success('会话删除成功')
     getSessionPage()
   })
+}
+//简单的换行逻辑
+const formatMessageContent = (content) => {
+  return content.replace(/\n/g, '<br>')
 }
 onMounted(() => {
   // 初始化时获取会话列表

@@ -9,7 +9,7 @@ export const startSession = (data) => {
 }
 // 获取会话列表
 export const getSessionList = (params) => {
-  return service.get('/psychological-chat/sessions',params)
+  return service.get('/psychological-chat/sessions',{params})
 }
 // 删除会话
 export const deleteSession = (sessionId) => {
