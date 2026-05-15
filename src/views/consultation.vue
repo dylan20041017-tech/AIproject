@@ -124,7 +124,7 @@ const router = useRouter()
 
 const iconUrl = new URL('@/assets/images/robot-fill.png', import.meta.url).href
 const iconUrl2 = new URL('@/assets/images/like.png', import.meta.url).href
-const iconUrl3 = new URL('@/assets/images/user.png', import.meta.url).href
+const iconUrl3 = new URL('@/assets/images/users.png', import.meta.url).href
 
 // 新建会话
 const createNewFrontendSession = () => {
@@ -204,15 +204,14 @@ const getSessionPage = () => {
     pageNum: 1,
     pageSize: 10,
   }).then(res => {
-    console.log(res)
     sessionList.value = res.records
   })
 }
 // 处理会话点击事件
 const handleSessionClick = (session) => {
   console.log(session)
-  currentSession.value = session
   getSessionDetail(session.id).then(res => {
+    console.log('接口返回数据:', res)
     message.value = res
   })
 }
