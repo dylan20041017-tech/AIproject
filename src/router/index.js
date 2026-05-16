@@ -89,6 +89,10 @@ const frontendRouter = [
         path: 'knowledge',
         component: () => import('@/views/frontendknowledge.vue'),
       },
+      {
+        path: 'knowledge/article/:id',
+        component: () => import('@/views/articleDetail.vue'),
+      },
     ],
   },
 ]
