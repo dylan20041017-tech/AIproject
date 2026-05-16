@@ -100,9 +100,10 @@ const getPageList = () => {
         pagination.total = res.total
     })
 }
+
 //获取封面图片
 const getImage = (url) => {
-    return url ? 'https://159.75.169.224:1235' + url : 'https://file.itndedu.com/psychology_ai.png'
+    return url ? 'http://159.75.169.224:1235' + url : 'https://file.itndedu.com/psychology_ai.png'
 }
 // 分页
 const handleChange = (page) => {
