@@ -13,6 +13,39 @@
           在线服务中
         </div>
       </div>
+      <!-- 情绪花园 -->
+       <div class="emotion-garden">
+        <div class="garden-header">
+          <div class="garden-title">情绪花园</div>
+        </div>
+        <div class="emotion-info">
+          <div class="emotion-name">困惑</div>
+          <div class="emotion-score">50</div>
+        </div>
+        <div class="warm-tips">
+          <div class="emotion-status-text">
+            <span class="status-label">今天感觉</span>
+            <span class="status-emotion">{{ currentEmotion.isNegative ? '需要关注' : '很不错' }}</span>
+          </div>
+          <div class="emotion-intensity">
+            <span class="intensity-dots">
+              <span class="dot" v-for=" i in 3" :key="index" :class="{'active' :getIntensityClass(currentEmotion.emotionScore)>=i}"></span>
+            </span>
+            <span class="intensity-text">{{ getRiskText(currentEmotion.riskLevel) }}</span>
+          </div>
+          <!-- 温暖卡片建议 -->
+           <div class="warm-suggestion" v-if="currentEmotion.suggestion">
+            <div class="suggestion-icon">💝</div>
+            <div class="suggestion-content">
+              <div class="suggestion-title">建议</div>
+              <div class="suggestion-text">
+                {{ currentEmotion.suggestion }}
+              </div>
+            </div>
+           </div>
+        </div>
+
+       </div>
       <!-- 会话列表 -->
       <div class="session-history">
         <h4 class="session-title">会话列表</h4>
@@ -175,6 +208,37 @@ const sessionList = ref([])
 const userMessage = ref('')
 // 是否正在发送消息
 const isAiTyping = ref(false)
+// 情绪花园
+const currentEmotion = ref({
+  primaryEmotion: '中性',
+  emotionScore: 50,
+  isNegative: false,
+  riskLevel: 0,
+  suggestion: '情绪状态平稳',
+})
+const getIntensityClass = (score) => {
+ if (score >= 61) {
+  return 3
+ }else if (score >= 31) {
+  return 2
+ }else{
+  return 1
+ }
+}
+const getRiskText = (level) => {
+ switch (level) {
+  case 0:
+    return '正常'
+  case 1:
+    return '关注'
+  case 2:
+    return '预警'
+  case 3:
+    return '危机'
+  default:
+    return '正常'
+ }
+}
 // 处理键盘事件
 const handleKeyDown = (e) => {
   if (e.key === 'Enter' && currentSession.value) {
