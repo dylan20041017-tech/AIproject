@@ -22,7 +22,7 @@
           <el-button type="primary" size="large" @click="submitForm(ruleFormRef)">登录账户</el-button>
         </div>
         <div class="footer">
-          <p>还没有账户？<router-link to="/auth/register" ">去注册</router-link></p>
+          <p>还没有账户？<router-link to="/auth/register">去注册</router-link></p>
         </div>
       </el-form>
     </div>
@@ -32,8 +32,7 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { login } from '@/api/admin'
-import { useRouter } from 'vue-router'
-
+import { useRouter, useRoute } from 'vue-router'
 
 const ruleFormRef = ref()
 
@@ -50,28 +49,34 @@ const rules = reactive({
     { required: true, message: '请输入密码', trigger: 'blur' }
   ]
 })
-// 提交登录表单
-const router = useRouter()
 
+const router = useRouter()
+const route = useRoute()
+
+// 提交登录表单
 const submitForm = async (formEl) => {
   if (!formEl) return;
-  // valid：布尔值，表示验证是否通过
-  // fields：表单数据对象，包含验证失败的字段的错误信息
   await formEl.validate(async (valid, fields) => {
     if (valid) {
       login(formData).then(data => {
-        // 判断token是否存在
         if (!data.token) {
           return console.error('登录失败')
         }
         // 登录成功，保存token到localStorage
         localStorage.setItem('token', data.token)
         localStorage.setItem('userInfo', JSON.stringify(data.userInfo))
-        //根据用户类型跳转不同页面
-        if(data.userInfo.userType === 2){
-          router.push('/back/dashboard')
-        }else{
-          router.push('/')
+
+        // 优先跳转到 redirect 参数指定的路径（登录回跳）
+        const redirect = route.query.redirect
+        if (redirect) {
+          router.push(redirect)
+        } else {
+          // 兜底：按角色跳转默认页
+          if (data.userInfo.userType === 2) {
+            router.push('/back/dashboard')
+          } else {
+            router.push('/')
+          }
         }
       })
     }

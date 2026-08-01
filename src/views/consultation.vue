@@ -198,7 +198,7 @@ import { startSession, getSessionList, deleteSession, getSessionDetail, getSessi
 import { ElMessage } from 'element-plus'
 import { ChatRound } from '@element-plus/icons-vue'
 import MarkdownRenderer from '@/components/MarkdownRenderer.vue'
-import { fetchEventSource } from '@microsoft/fetch-event-source'
+import { SSEClient } from '@/utils/sseClient'
 
 const router = useRouter()
 
@@ -212,6 +212,12 @@ const iconUrl3 = new URL('@/assets/images/users.png', import.meta.url).href
 const currentSession = ref(null)
 // 新建会话
 const createNewFrontendSession = () => {
+  // 中断当前 SSE 流
+  if (activeSSEClient) {
+    activeSSEClient.abort()
+    activeSSEClient = null
+  }
+  isAiTyping.value = false
   //创建新的会话对象
   const newSession = ({
     sessionId: `temp_${Date.now()}`,
@@ -230,6 +236,8 @@ const sessionList = ref([])
 const userMessage = ref('')
 // 是否正在发送消息
 const isAiTyping = ref(false)
+// 当前活跃的 SSE 客户端，用于切换会话时中断上一个流
+let activeSSEClient = null
 // 情绪花园
 const currentEmotion = ref({
   primaryEmotion: '中性',
@@ -348,6 +356,12 @@ const startAiResponse = (sessionId, userMessage) => {
     return
   }
 
+  // 中断上一个未完成的 SSE 流（切换会话场景）
+  if (activeSSEClient) {
+    activeSSEClient.abort()
+    activeSSEClient = null
+  }
+
   isAiTyping.value = true;
 
   const aiMessage = {
@@ -358,37 +372,33 @@ const startAiResponse = (sessionId, userMessage) => {
   };
   messages.value.push(aiMessage)
 
-  //调用流式接口
-  const ctrl = new AbortController()
+  // 基于封装的 SSE 客户端发起流式请求
   const token = localStorage.getItem('token');
-  fetchEventSource('/api/psychological-chat/stream', {
+
+  activeSSEClient = new SSEClient({
+    url: '/api/psychological-chat/stream',
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
       Token: token || '',
-      Accept: 'text/event-stream',
     },
     body: JSON.stringify({
       sessionId,
       userMessage,
     }),
-    signal: ctrl.signal,
-    onopen(response) {
+    onOpen(response) {
       console.log(response);
       if (response.headers.get('Content-Type') !== 'text/event-stream') {
         ElMessage.error('服务器返回的不是事件流格式')
       }
     },
-    onmessage(event) {
-      const raw = event.data.trim();
+    onMessage({ event: eventName, data: raw }) {
       if (!raw) return;
-      const eventName = event.event
-      //当前ai消息
-      const aiMessage = messages.value[messages.value.length - 1]
+      const currentAiMessage = messages.value[messages.value.length - 1]
+
       if (eventName === 'done') {
         isAiTyping.value = false;
-        ctrl.abort()
-        //情绪分析
+        activeSSEClient?.abort()
+        activeSSEClient = null
         loadSessionEmotion(currentSession.value.sessionId)
         return;
       }
@@ -396,24 +406,25 @@ const startAiResponse = (sessionId, userMessage) => {
       try {
         const payload = JSON.parse(raw);
         if (String(payload.code) === '200' && payload.data && payload.data.content) {
-          aiMessage.content += payload.data.content;
-        } else if (!ok) {
-          //错误回复显示
-          handleError(payload,message.content||'AI回复失败')
-        } 
+          currentAiMessage.content += payload.data.content;
+        } else if (String(payload.code) !== '200') {
+          handleError(payload)
+        }
       } catch {
-        
+        // 非 JSON 数据，忽略
       }
     },
-    onerror(err) {
-      handleError(err||'AI回复失败')
-      throw err;
+    onError(err) {
+      handleError(err || 'AI回复失败')
+      activeSSEClient = null
     },
-    onclose() {
-      //情绪分析
+    onClose() {
       loadSessionEmotion(currentSession.value.sessionId)
+      activeSSEClient = null
     }
-  });
+  })
+
+  activeSSEClient.connect()
 };
 //*********错误处理函数
 const handleError = (error) => {
@@ -438,6 +449,12 @@ const getSessionPage = () => {
 }
 // 处理会话点击事件
 const handleSessionClick = (session) => {
+  // 中断当前 SSE 流
+  if (activeSSEClient) {
+    activeSSEClient.abort()
+    activeSSEClient = null
+  }
+  isAiTyping.value = false
   getSessionDetail(session.id).then(res => {
     messages.value = res
   })

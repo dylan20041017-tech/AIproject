@@ -117,7 +117,7 @@
 import { ref } from 'vue'
 import { getAnalyticsOverview } from '@/api/admin'
 import { onMounted } from 'vue'
-import * as echarts from 'echarts'
+import { useECharts } from '@/composables/useECharts'
 
 //统计图片
 const iconUrl = new URL('@/assets/images/users.png', import.meta.url).href
@@ -126,387 +126,210 @@ const iconUrl3 = new URL('@/assets/images/comments.png', import.meta.url).href
 const iconUrl4 = new URL('@/assets/images/smile.png', import.meta.url).href
 
 const aiData = ref({})
-//情绪趋势分析图表
-let emotionChart = null
-const emotionChartRef = ref(null)
-//初始化图表
-const initCharts = () => {
-  initEmotionChart()
-  initConsultationChart()
-  initUserActiveChart()
-}
 
-const initEmotionChart = () => {
-  if (!emotionChartRef.value) return
-  //销毁现有的图表
-  if (emotionChart) {
-    emotionChart.dispose()
-  }
+// 三个图表使用组合式函数，自动管理生命周期
+const { chartRef: emotionChartRef, setOption: setEmotionOption } = useECharts()
+const { chartRef: consultationChartRef, setOption: setConsultationOption } = useECharts()
+const { chartRef: userActiveChartRef, setOption: setUserActiveOption } = useECharts()
 
-  emotionChart = echarts.init(emotionChartRef.value)
-  const TrendData = aiData.value.emotionTrend
-  //配置图表
-  const option = {
-    title: {
-      text: '情绪趋势分析',
-      textStyle: {
-        color: '#2d3436',
-        fontSize: 16,
-        fontWeight: '600'
-      },
-      left: 'center',
-      top: '10'
+// 根据数据生成图表配置
+const buildEmotionOption = (trendData) => ({
+  title: {
+    text: '情绪趋势分析',
+    textStyle: { color: '#2d3436', fontSize: 16, fontWeight: '600' },
+    left: 'center',
+    top: '10'
+  },
+  tooltip: {
+    trigger: 'axis',
+    borderColor: '#fab1a0',
+    borderWidth: 1,
+    textStyle: { color: '#2d3436' }
+  },
+  legend: {
+    data: ['平均情绪评分', '记录数量'],
+    top: '40',
+  },
+  grid: { top: '80', bottom: '3%', left: '3%', right: '4%' },
+  xAxis: {
+    type: 'category',
+    data: trendData.map(item => item.date),
+    axisLine: { lineStyle: { color: '#2d3436' } },
+  },
+  yAxis: [
+    {
+      type: 'value', name: '情绪评分', position: 'left',
+      axisLine: { lineStyle: { color: '#2d3436' } },
     },
-    tooltip: {
-      trigger: 'axis',
-      borderColor: '#fab1a0',
-      borderWidth: 1,
-      textStyle: {
-        color: '#2d3436',
-      }
+    {
+      type: 'value', name: '记录数量', position: 'right',
+      axisLine: { lineStyle: { color: '#2d3436' } },
     },
-    legend: {
-      data: ['平均情绪评分', '记录数量'],
-      top: '40',
+  ],
+  series: [
+    {
+      name: '平均情绪评分', type: 'line',
+      data: trendData.map(item => item.avgMoodScore),
+      smooth: true,
+      lineStyle: { color: '#faebaf', width: 3 },
+      itemStyle: { color: '#faebaf' },
     },
-    grid: {
-      top: '80',
-      bottom: '3%',
-      left: '3%',
-      right: '4%',
+    {
+      name: '记录数量', type: 'line',
+      data: trendData.map(item => item.recordCount),
+      lineStyle: { color: '#eeb5a3', width: 3 },
+      itemStyle: { color: '#eeb5a3' },
     },
-    xAxis: {
-      type: 'category',
-      data: TrendData.map(item => item.date),
-      axisLine: {
-        lineStyle: {
-          color: '#2d3436',
+  ]
+})
 
+const buildConsultationOption = (dailyTrend) => ({
+  title: {
+    text: '咨询活动统计',
+    textStyle: { fontSize: 16, fontWeight: 600, color: '#2d3436' },
+    left: 'center', top: 10
+  },
+  tooltip: {
+    trigger: 'axis',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderColor: '#fab1a0', borderWidth: 1,
+    textStyle: { color: '#2d3436' }
+  },
+  legend: {
+    data: ['会话数量', '参与用户数'],
+    top: 40,
+    textStyle: { color: '#636e72' }
+  },
+  grid: { left: '3%', right: '4%', bottom: '3%', top: 80, containLabel: true },
+  xAxis: {
+    type: 'category',
+    data: dailyTrend.map(item => item.date),
+    axisLine: { lineStyle: { color: 'rgba(244, 162, 97, 0.3)' } },
+    axisLabel: { color: '#636e72' }
+  },
+  yAxis: {
+    type: 'value',
+    axisLabel: { color: '#636e72' },
+    axisLine: { lineStyle: { color: 'rgba(244, 162, 97, 0.3)' } },
+    splitLine: { lineStyle: { color: 'rgba(244, 162, 97, 0.1)' } }
+  },
+  series: [
+    {
+      name: '会话数量', type: 'bar',
+      data: dailyTrend.map(item => item.sessionCount),
+      itemStyle: {
+        color: {
+          type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
+          colorStops: [
+            { offset: 0, color: '#74b9ff' },
+            { offset: 1, color: '#0984e3' }
+          ]
         }
       },
+      barWidth: '40%'
     },
-    yAxis: [
-      {
-        type: 'value',
-        name: '情绪评分',
-        position: 'left',
-        axisLine: {
-          lineStyle: {
-            color: '#2d3436',
-          }
-        },
+    {
+      name: '参与用户数', type: 'bar',
+      data: dailyTrend.map(item => item.userCount),
+      itemStyle: {
+        color: {
+          type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
+          colorStops: [
+            { offset: 0, color: '#fdcb6e' },
+            { offset: 1, color: '#f39c12' }
+          ]
+        }
       },
-      {
-        type: 'value',
-        name: '记录数量',
-        position: 'right',
-        axisLine: {
-          lineStyle: {
-            color: '#2d3436',
-          }
-        },
-      },
-    ],
-    series: [
-      {
-        name: '平均情绪评分',
-        type: 'line',
-        data: TrendData.map(item => item.avgMoodScore),
-        smooth: true,
-        lineStyle: {
-          color: '#faebaf',
-          width: 3,
-        },
-        itemStyle: {
-          color: '#faebaf',
-        },
-      },
-      {
-        name: '记录数量',
-        type: 'line',
-        data: TrendData.map(item => item.recordCount),
-        lineStyle: {
-          color: '#eeb5a3',
-          width: 3,
-        },
-        itemStyle: {
-          color: '#eeb5a3',
-        },
-      },
-    ]
+      barWidth: '40%'
+    }
+  ]
+})
 
-  }
-  emotionChart.setOption(option)
-}
-
-
-//初始化咨询趋势分析图表
-let consultationChart = null
-const consultationChartRef = ref(null)
-const initConsultationChart = () => {
-  if (!consultationChartRef.value) return
-  //销毁现有的图表
-  if (consultationChart) {
-    consultationChart.dispose()
-  }
-  consultationChart = echarts.init(consultationChartRef.value)
-  //获取咨询趋势分析数据
-  const dailyTrend = aiData.value.consultationStats?.dailyTrend
-
-  const option = {
-    title: {
-      text: '咨询活动统计',
-      textStyle: {
-        fontSize: 16,
-        fontWeight: 600,
-        color: '#2d3436'
-      },
-      left: 'center',
-      top: 10
-    },
-    tooltip: {
-      trigger: 'axis',
-      backgroundColor: 'rgba(255, 255, 255, 0.95)',
-      borderColor: '#fab1a0',
-      borderWidth: 1,
-      textStyle: {
-        color: '#2d3436'
-      }
-    },
-    legend: {
-      data: ['会话数量', '参与用户数'],
-      top: 40,
-      textStyle: {
-        color: '#636e72'
-      }
-    },
-    grid: {
-      left: '3%',
-      right: '4%',
-      bottom: '3%',
-      top: 80,
-      containLabel: true
-    },
-    xAxis: {
-      type: 'category',
-      data: dailyTrend.map(item => item.date),
-      axisLine: {
-        lineStyle: {
-          color: 'rgba(244, 162, 97, 0.3)'
-        }
-      },
-      axisLabel: {
-        color: '#636e72'
-      }
-    },
-    yAxis: {
-      type: 'value',
-      axisLabel: {
-        color: '#636e72'
-      },
-      axisLine: {
-        lineStyle: {
-          color: 'rgba(244, 162, 97, 0.3)'
-        }
-      },
-      splitLine: {
-        lineStyle: {
-          color: 'rgba(244, 162, 97, 0.1)'
+const buildUserActiveOption = (activityData) => ({
+  title: {
+    text: '用户活跃度趋势',
+    textStyle: { fontSize: 16, fontWeight: 600, color: '#2d3436' },
+    left: 'center', top: 10
+  },
+  tooltip: {
+    trigger: 'axis',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderColor: '#fab1a0', borderWidth: 1,
+    textStyle: { color: '#2d3436' }
+  },
+  legend: {
+    data: ['活跃用户', '新增用户', '日记用户', '咨询用户'],
+    top: 40,
+    textStyle: { color: '#636e72' }
+  },
+  grid: { left: '3%', right: '4%', bottom: '3%', top: 80, containLabel: true },
+  xAxis: {
+    type: 'category',
+    data: activityData.map(item => item.date),
+    axisLine: { lineStyle: { color: 'rgba(244, 162, 97, 0.3)' } },
+    axisLabel: { color: '#636e72' }
+  },
+  yAxis: {
+    type: 'value',
+    axisLabel: { color: '#636e72' },
+    axisLine: { lineStyle: { color: 'rgba(244, 162, 97, 0.3)' } },
+    splitLine: { lineStyle: { color: 'rgba(244, 162, 97, 0.1)' } }
+  },
+  series: [
+    {
+      name: '活跃用户', type: 'line',
+      data: activityData.map(item => item.activeUsers),
+      smooth: true,
+      lineStyle: { width: 3, color: '#a29bfe' },
+      itemStyle: { color: '#a29bfe' },
+      areaStyle: {
+        color: {
+          type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
+          colorStops: [
+            { offset: 0, color: 'rgba(162, 155, 254, 0.4)' },
+            { offset: 1, color: 'rgba(162, 155, 254, 0.1)' }
+          ]
         }
       }
     },
-    series: [
-      {
-        name: '会话数量',
-        type: 'bar',
-        data: dailyTrend.map(item => item.sessionCount),
-        itemStyle: {
-          color: {
-            type: 'linear',
-            x: 0,
-            y: 0,
-            x2: 0,
-            y2: 1,
-            colorStops: [
-              { offset: 0, color: '#74b9ff' },
-              { offset: 1, color: '#0984e3' }
-            ]
-          }
-        },
-        barWidth: '40%'
-      },
-      {
-        name: '参与用户数',
-        type: 'bar',
-        data: dailyTrend.map(item => item.userCount),
-        itemStyle: {
-          color: {
-            type: 'linear',
-            x: 0,
-            y: 0,
-            x2: 0,
-            y2: 1,
-            colorStops: [
-              { offset: 0, color: '#fdcb6e' },
-              { offset: 1, color: '#f39c12' }
-            ]
-          }
-        },
-        barWidth: '40%'
-      }
-    ]
-  }
-  consultationChart.setOption(option)
-}
-//初始化用户活跃度趋势图表
-let userActiveChart = null
-const userActiveChartRef = ref(null)
-const initUserActiveChart = () => {
-  if (!userActiveChartRef.value) return
-  //销毁现有的图表
-  if (userActiveChart) {
-    userActiveChart.dispose()
-  }
-  userActiveChart = echarts.init(userActiveChartRef.value)
-  const activityData= aiData.value.userActivity
-  const option = {
-    title: {
-      text: '用户活跃度趋势',
-      textStyle: {
-        fontSize: 16,
-        fontWeight: 600,
-        color: '#2d3436'
-      },
-      left: 'center',
-      top: 10
+    {
+      name: '新增用户', type: 'line',
+      data: activityData.map(item => item.newUsers),
+      smooth: true,
+      lineStyle: { width: 3, color: '#fdcb6e' },
+      itemStyle: { color: '#fdcb6e' }
     },
-    tooltip: {
-      trigger: 'axis',
-      backgroundColor: 'rgba(255, 255, 255, 0.95)',
-      borderColor: '#fab1a0',
-      borderWidth: 1,
-      textStyle: {
-        color: '#2d3436'
-      }
+    {
+      name: '日记用户', type: 'line',
+      data: activityData.map(item => item.diaryUsers),
+      smooth: true,
+      lineStyle: { width: 3, color: '#00b894' },
+      itemStyle: { color: '#00b894' }
     },
-    legend: {
-      data: ['活跃用户', '新增用户', '日记用户', '咨询用户'],
-      top: 40,
-      textStyle: {
-        color: '#636e72'
-      }
-    },
-    grid: {
-      left: '3%',
-      right: '4%',
-      bottom: '3%',
-      top: 80,
-      containLabel: true
-    },
-    xAxis: {
-      type: 'category',
-      data: activityData.map(item => item.date),
-      axisLine: {
-        lineStyle: {
-          color: 'rgba(244, 162, 97, 0.3)'
-        }
-      },
-      axisLabel: {
-        color: '#636e72'
-      }
-    },
-    yAxis: {
-      type: 'value',
-      axisLabel: {
-        color: '#636e72'
-      },
-      axisLine: {
-        lineStyle: {
-          color: 'rgba(244, 162, 97, 0.3)'
-        }
-      },
-      splitLine: {
-        lineStyle: {
-          color: 'rgba(244, 162, 97, 0.1)'
-        }
-      }
-    },
-    series: [
-      {
-        name: '活跃用户',
-        type: 'line',
-        data: activityData.map(item => item.activeUsers),
-        smooth: true,
-        lineStyle: {
-          width: 3,
-          color: '#a29bfe'
-        },
-        itemStyle: {
-          color: '#a29bfe'
-        },
-        areaStyle: {
-          color: {
-            type: 'linear',
-            x: 0,
-            y: 0,
-            x2: 0,
-            y2: 1,
-            colorStops: [
-              { offset: 0, color: 'rgba(162, 155, 254, 0.4)' },
-              { offset: 1, color: 'rgba(162, 155, 254, 0.1)' }
-            ]
-          }
-        }
-      },
-      {
-        name: '新增用户',
-        type: 'line',
-        data: activityData.map(item => item.newUsers),
-        smooth: true,
-        lineStyle: {
-          width: 3,
-          color: '#fdcb6e'
-        },
-        itemStyle: {
-          color: '#fdcb6e'
-        }
-      },
-      {
-        name: '日记用户',
-        type: 'line',
-        data: activityData.map(item => item.diaryUsers),
-        smooth: true,
-        lineStyle: {
-          width: 3,
-          color: '#00b894'
-        },
-        itemStyle: {
-          color: '#00b894'
-        }
-      },
-      {
-        name: '咨询用户',
-        type: 'line',
-        data: activityData.map(item => item.consultationUsers),
-        smooth: true,
-        lineStyle: {
-          width: 3,
-          color: '#fab1a0'
-        },
-        itemStyle: {
-          color: '#fab1a0'
-        }
-      }
-    ]
-  }
-  userActiveChart.setOption(option)
-}
-
+    {
+      name: '咨询用户', type: 'line',
+      data: activityData.map(item => item.consultationUsers),
+      smooth: true,
+      lineStyle: { width: 3, color: '#fab1a0' },
+      itemStyle: { color: '#fab1a0' }
+    }
+  ]
+})
 
 onMounted(() => {
   getAnalyticsOverview().then(res => {
     aiData.value = res
-    initCharts()
+
+    // 基于数据设置图表配置
+    if (res.emotionTrend) {
+      setEmotionOption(buildEmotionOption(res.emotionTrend))
+    }
+    if (res.consultationStats?.dailyTrend) {
+      setConsultationOption(buildConsultationOption(res.consultationStats.dailyTrend))
+    }
+    if (res.userActivity) {
+      setUserActiveOption(buildUserActiveOption(res.userActivity))
+    }
   })
 })
 </script>
