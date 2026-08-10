@@ -1,0 +1,25 @@
+- generic [ref=f3e3]:
+  - generic [ref=f3e5]:
+    - heading "心理AI助手" [level=2] [ref=f3e6]
+    - paragraph [ref=f3e7]: 每个深夜，每个焦虑时刻，我们都在这里为您的心理提供专业的支持
+    - img "AI心理助手" [ref=f3e10]
+  - generic [ref=f3e14]:
+    - generic [ref=f3e15]:
+      - generic [ref=f3e16]: 返回首页
+      - generic [ref=f3e21]:
+        - heading "登录您的账户" [level=2] [ref=f3e22]
+        - paragraph [ref=f3e23]: 输入您的登录信息
+    - generic [ref=f3e25]:
+      - generic [ref=f3e26]:
+        - generic [ref=f3e27]: "*用户名或邮箱"
+        - textbox "*用户名或邮箱" [ref=f3e31]:
+          - /placeholder: 请输入用户名或邮箱
+      - generic [ref=f3e32]:
+        - generic [ref=f3e33]: "*密码"
+        - textbox "*密码" [ref=f3e37]:
+          - /placeholder: 请输入密码
+      - button "登录账户" [ref=f3e39] [cursor=pointer]
+      - paragraph [ref=f3e42]:
+        - text: 还没有账户？
+        - link "去注册" [ref=f3e43] [cursor=pointer]:
+          - /url: /auth/register

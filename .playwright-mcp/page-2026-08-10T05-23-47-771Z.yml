@@ -1,0 +1,58 @@
+- generic [ref=f2e3]:
+  - generic [ref=f2e4]:
+    - generic [ref=f2e5]:
+      - img "logo" [ref=f2e7]
+      - heading "心理健康AI助手" [level=1] [ref=f2e8]
+    - generic [ref=f2e9]:
+      - link "首页" [ref=f2e10] [cursor=pointer]:
+        - /url: /
+      - link "AI咨询" [ref=f2e11] [cursor=pointer]:
+        - /url: /consultation
+      - link "情绪日志" [ref=f2e12] [cursor=pointer]:
+        - /url: /emotion-diary
+      - link "知识库" [ref=f2e13] [cursor=pointer]:
+        - /url: /knowledge
+      - button "退出登录" [ref=f2e14] [cursor=pointer]
+  - generic [ref=f2e17]:
+    - generic [ref=f2e18]:
+      - generic [ref=f2e19]:
+        - img "logo" [ref=f2e22]
+        - heading "宁渡AI助手" [level=3] [ref=f2e23]
+        - generic [ref=f2e24]: 在线服务中
+      - generic [ref=f2e26]:
+        - generic [ref=f2e27]: 情绪花园
+        - generic [ref=f2e29]:
+          - generic [ref=f2e30]: 中性
+          - generic [ref=f2e31]: "50"
+        - generic [ref=f2e32]:
+          - generic [ref=f2e33]:
+            - text: 今天感觉
+            - generic [ref=f2e34]: 很不错
+          - generic [ref=f2e35]: 正常
+          - generic [ref=f2e41]:
+            - generic [ref=f2e42]: 💝
+            - generic [ref=f2e43]:
+              - generic [ref=f2e44]: 建议
+              - generic [ref=f2e45]: 情绪状态平稳
+      - heading "会话列表" [level=4] [ref=f2e47]
+    - generic [ref=f2e48]:
+      - generic [ref=f2e49]:
+        - generic [ref=f2e50]:
+          - img "logo" [ref=f2e53]
+          - generic [ref=f2e54]:
+            - heading "宁渡AI助手" [level=2] [ref=f2e55]
+            - paragraph [ref=f2e56]: 获取专业的心理健康建议
+        - button "创建新会话" [ref=f2e57] [cursor=pointer]
+      - generic [ref=f2e63]:
+        - img "logo" [ref=f2e66]
+        - generic [ref=f2e67]:
+          - paragraph [ref=f2e69]: 欢迎来到宁渡AI助手，我是专业的心理健康建议助手。
+          - generic [ref=f2e70]: 10:00
+      - generic [ref=f2e71]:
+        - generic [ref=f2e72]:
+          - textbox "请输入想要分享的内容..." [ref=f2e74]
+          - generic [ref=f2e75]:
+            - generic [ref=f2e76]: 按Enter换行，Shift+Enter发送
+            - generic [ref=f2e77]: 0/500
+        - button [disabled] [ref=f2e78]
+  - paragraph [ref=f2e85]: 心理健康AI助手.All rights reserved © 2026

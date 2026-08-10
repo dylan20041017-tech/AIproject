@@ -1,0 +1,58 @@
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - img "logo" [ref=e7]
+      - heading "心理健康AI助手" [level=1] [ref=e8]
+    - generic [ref=e9]:
+      - link "首页" [ref=e10] [cursor=pointer]:
+        - /url: /
+      - link "知识库" [ref=e11] [cursor=pointer]:
+        - /url: /knowledge
+      - link "登录" [ref=e12] [cursor=pointer]:
+        - /url: /auth/login
+      - link [ref=e13] [cursor=pointer]:
+        - /url: /auth/register
+        - button "注册" [ref=e14]
+  - generic [ref=e17]:
+    - generic [ref=e18]:
+      - generic [ref=e19]:
+        - img "logo" [ref=e22]
+        - heading "宁渡AI助手" [level=3] [ref=e23]
+        - generic [ref=e24]: 在线服务中
+      - generic [ref=e26]:
+        - generic [ref=e27]: 情绪花园
+        - generic [ref=e29]:
+          - generic [ref=e30]: 中性
+          - generic [ref=e31]: "50"
+        - generic [ref=e32]:
+          - generic [ref=e33]:
+            - text: 今天感觉
+            - generic [ref=e34]: 很不错
+          - generic [ref=e35]: 正常
+          - generic [ref=e41]:
+            - generic [ref=e42]: 💝
+            - generic [ref=e43]:
+              - generic [ref=e44]: 建议
+              - generic [ref=e45]: 情绪状态平稳
+      - heading "会话列表" [level=4] [ref=e47]
+    - generic [ref=e48]:
+      - generic [ref=e49]:
+        - generic [ref=e50]:
+          - img "logo" [ref=e53]
+          - generic [ref=e54]:
+            - heading "宁渡AI助手" [level=2] [ref=e55]
+            - paragraph [ref=e56]: 获取专业的心理健康建议
+        - button "创建新会话" [ref=e57] [cursor=pointer]
+      - generic [ref=e63]:
+        - img "logo" [ref=e66]
+        - generic [ref=e67]:
+          - paragraph [ref=e69]: 欢迎来到宁渡AI助手，我是专业的心理健康建议助手。
+          - generic [ref=e70]: 10:00
+      - generic [ref=e71]:
+        - generic [ref=e72]:
+          - textbox "请输入想要分享的内容..." [ref=e74]
+          - generic [ref=e75]:
+            - generic [ref=e76]: 按Enter换行，Shift+Enter发送
+            - generic [ref=e77]: 0/500
+        - button [disabled] [ref=e78]
+  - paragraph [ref=e85]: 心理健康AI助手.All rights reserved © 2026

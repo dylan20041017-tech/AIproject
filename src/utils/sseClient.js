@@ -116,13 +116,22 @@ export class SSEClient {
     const dataLines = []
 
     for (const line of lines) {
-      if (line.startsWith('event: ')) {
-        event = line.slice(7).trim()
-      } else if (line.startsWith('data: ')) {
-        dataLines.push(line.slice(6))
-      } else if (line.startsWith(':')) {
+      if (line.startsWith(':')) {
         // SSE 注释行，忽略
         continue
+      }
+
+      const colonIdx = line.indexOf(':')
+      if (colonIdx === -1) continue
+
+      const field = line.slice(0, colonIdx)
+      // 冒号后的值，去掉可能存在的首空格（SSE 标准：空格可选）
+      const value = line.slice(colonIdx + 1).replace(/^ /, '')
+
+      if (field === 'event') {
+        event = value
+      } else if (field === 'data') {
+        dataLines.push(value)
       }
     }
 

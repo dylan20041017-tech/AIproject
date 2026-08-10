@@ -28,8 +28,8 @@ service.interceptors.response.use(
   response => {
     const { data, config } = response
 
-    // 处理业务状态码
-    if (data.code === '200') {
+    // 处理业务状态码（兼容字符串和数字）
+    if (String(data.code) === '200') {
       // GET 请求成功后写入缓存
       if (config.method === 'get') {
         const key = requestCache.generateKey(config)
@@ -37,7 +37,7 @@ service.interceptors.response.use(
       }
       return data.data
     } else {
-      if (data.code === '-1') {
+      if (String(data.code) === '-1') {
         // 处理登录过期错误
         if (!config.url?.includes('/login')) {
           ElMessage.error(data.msg || '登录过期，请重新登录')
@@ -64,70 +64,29 @@ service.interceptors.response.use(
   }
 )
 
-// GET 请求：添加缓存与去重逻辑
+// GET 请求：缓存命中时直接返回，跳过网络请求
 service.interceptors.request.use(
   config => {
-    // 仅对 GET 请求做缓存处理
-    if (config.method === 'get' && !config._skipCache) {
-      const key = requestCache.generateKey(config)
+    if (config.method !== 'get' || config._skipCache) return config
 
-      // 1. 检查是否有进行中的相同请求 → 去重
-      const pending = requestCache.getPending(key)
-      if (pending) {
-        // 返回相同的 Promise，外部 adapter 会等待
-        config._cachedPromise = pending
-        return config
-      }
+    const key = requestCache.generateKey(config)
+    const cached = requestCache.getCached(key)
 
-      // 2. 检查是否有未过期的缓存结果
-      const cached = requestCache.getCached(key)
-      if (cached) {
-        // 标记为缓存命中，跳过实际请求
-        config._cachedResult = cached
-        return config
-      }
+    if (cached) {
+      // 缓存命中：注入 adapter 直接返回缓存数据
+      config.adapter = () =>
+        Promise.resolve({
+          data: { code: '200', data: cached },
+          status: 200,
+          statusText: 'OK',
+          headers: {},
+          config,
+        })
     }
+
     return config
   },
   error => Promise.reject(error)
 )
-
-// 自定义 adapter：处理缓存命中 / 请求去重
-const originalAdapter = service.defaults.adapter
-
-service.defaults.adapter = function (config) {
-  // 缓存命中：直接返回
-  if (config._cachedResult !== undefined) {
-    return Promise.resolve({
-      data: { code: '200', data: config._cachedResult },
-      status: 200,
-      statusText: 'OK',
-      headers: {},
-      config,
-    })
-  }
-
-  // 请求去重：共享同一个 Promise
-  if (config._cachedPromise !== undefined) {
-    return config._cachedPromise
-  }
-
-  const key = requestCache.generateKey(config)
-
-  // 发起实际请求
-  const promise = originalAdapter(config)
-
-  // 记录进行中的 GET 请求
-  if (config.method === 'get' && !config._skipCache) {
-    requestCache.setPending(key, promise)
-
-    // 请求结束后从 pendingMap 移除
-    promise.finally(() => {
-      requestCache.deletePending(key)
-    })
-  }
-
-  return promise
-}
 
 export default service

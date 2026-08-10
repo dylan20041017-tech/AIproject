@@ -1,0 +1,24 @@
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - img "logo" [ref=e7]
+      - heading "心理健康AI助手" [level=1] [ref=e8]
+    - generic [ref=e9]:
+      - link "首页" [ref=e10] [cursor=pointer]:
+        - /url: /
+      - link "知识库" [ref=e11] [cursor=pointer]:
+        - /url: /knowledge
+      - link "登录" [ref=e12] [cursor=pointer]:
+        - /url: /auth/login
+      - link [ref=e13] [cursor=pointer]:
+        - /url: /auth/register
+        - button "注册" [ref=e14]
+  - generic [ref=e19]:
+    - generic [ref=e20]:
+      - heading "一次温暖的对话 化孤独为慰藉" [level=2] [ref=e21]
+      - paragraph [ref=e22]: 与AI助手互动，获取专业的心理健康建议。
+      - generic [ref=e23]:
+        - button "开始倾诉，获得陪伴" [ref=e24] [cursor=pointer]
+        - button "记录心情，释放情感" [ref=e26] [cursor=pointer]
+    - img "logo" [ref=e30]
+  - paragraph [ref=e33]: 心理健康AI助手.All rights reserved © 2026

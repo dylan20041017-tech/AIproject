@@ -1,0 +1,154 @@
+- generic [ref=f6e3]:
+  - generic [ref=f6e4]:
+    - generic [ref=f6e5]:
+      - img "logo" [ref=f6e7]
+      - heading "心理健康AI助手" [level=1] [ref=f6e8]
+    - generic [ref=f6e9]:
+      - link "首页" [ref=f6e10] [cursor=pointer]:
+        - /url: /
+      - link "AI咨询" [ref=f6e11] [cursor=pointer]:
+        - /url: /consultation
+      - link "情绪日志" [ref=f6e12] [cursor=pointer]:
+        - /url: /emotion-diary
+      - link "知识库" [ref=f6e13] [cursor=pointer]:
+        - /url: /knowledge
+      - button "退出登录" [ref=f6e14] [cursor=pointer]
+  - generic [ref=f6e17]:
+    - generic [ref=f6e18]:
+      - generic [ref=f6e19]:
+        - img "logo" [ref=f6e22]
+        - heading "宁渡AI助手" [level=3] [ref=f6e23]
+        - generic [ref=f6e24]: 在线服务中
+      - generic [ref=f6e26]:
+        - generic [ref=f6e27]: 情绪花园
+        - generic [ref=f6e29]:
+          - generic [ref=f6e30]: 中性
+          - generic [ref=f6e31]: "50"
+        - generic [ref=f6e32]:
+          - generic [ref=f6e33]:
+            - text: 今天感觉
+            - generic [ref=f6e34]: 很不错
+          - generic [ref=f6e35]: 正常
+          - generic [ref=f6e41]:
+            - generic [ref=f6e42]: 💝
+            - generic [ref=f6e43]:
+              - generic [ref=f6e44]: 建议
+              - generic [ref=f6e45]: 情绪状态平稳，慢慢来就好
+          - generic [ref=f6e306]:
+            - generic [ref=f6e307]: 治愈小行动
+            - generic [ref=f6e308]:
+              - generic [ref=f6e309]:
+                - generic [ref=f6e310]: ✨
+                - generic [ref=f6e311]: 保持规律作息
+              - generic [ref=f6e312]:
+                - generic [ref=f6e313]: ✨
+                - generic [ref=f6e314]: 适当运动
+              - generic [ref=f6e315]:
+                - generic [ref=f6e316]: ✨
+                - generic [ref=f6e317]: 与朋友交流
+      - generic [ref=f6e46]:
+        - heading "会话列表" [level=4] [ref=f6e47]
+        - generic [ref=f6e48]:
+          - generic [ref=f6e50] [cursor=pointer]:
+            - generic [ref=f6e51]:
+              - text: 宁渡AI助手 - 2026/8/10 13:31:00
+              - generic [ref=f6e52]: 听到你这么说真的很为你开心呢！😊 能和我分享一下是什么让你感到这么开心吗？这些快乐的小事很值得被记住和珍惜呢~ 有时候把开心的时刻说出来，快乐的感觉会加倍哦✨ (如果是特别开心的事情，要不要考虑...
+              - generic [ref=f6e53]:
+                - generic [ref=f6e54]: "2"
+                - generic [ref=f6e58]: 0 分钟
+            - button [ref=f6e65]
+          - generic [ref=f6e71] [cursor=pointer]:
+            - generic [ref=f6e72]:
+              - text: 宁渡AI助手 - 2026/8/10 13:29:30
+              - generic [ref=f6e73]: 你好呀~我是你的心理陪伴小助手，很高兴和你相遇。✨ 看起来你在做测试呢，有什么我可以帮你的吗？无论是学习压力、人际关系还是情感困扰，都可以和我聊聊哦。 （如果你只是在测试功能的话，可以随时告诉我你...
+              - generic [ref=f6e74]:
+                - generic [ref=f6e75]: "2"
+                - generic [ref=f6e79]: 1 分钟
+            - button [ref=f6e86]
+          - generic [ref=f6e92] [cursor=pointer]:
+            - generic [ref=f6e93]:
+              - text: 宁渡AI助手 - 2026/8/10 13:27:42
+              - generic [ref=f6e94]: 我能感受到你现在的压力很大，这种感觉一定很不好受吧。作为大学生，面对学业、人际关系或者未来规划时感到压力是很常见的。愿意和我说说具体是什么事情让你感到特别有压力吗？🤗 记住，你愿意把自己的感受说出...
+              - generic [ref=f6e95]:
+                - generic [ref=f6e96]: "2"
+                - generic [ref=f6e100]: 3 分钟
+            - button [ref=f6e107]
+          - generic [ref=f6e113] [cursor=pointer]:
+            - generic [ref=f6e114]:
+              - text: 宁渡AI助手 - 2026/8/10 13:24:14
+              - generic [ref=f6e115]: 我能感受到你现在的低落情绪，这种感受确实让人不太好受。💛 愿意和我聊聊发生了什么事吗？有时候说出来会让心里轻松一些。如果暂时不想说也没关系，我们可以先一起深呼吸放松一下~ 记住，每个人都会有心情...
+              - generic [ref=f6e116]:
+                - generic [ref=f6e117]: "2"
+                - generic [ref=f6e121]: 7 分钟
+            - button [ref=f6e128]
+          - generic [ref=f6e134] [cursor=pointer]:
+            - generic [ref=f6e135]:
+              - text: 宁渡AI助手 - 2026/8/10 13:19:21
+              - generic [ref=f6e136]: 我能感受到你可能想表达些什么，但似乎一时间找不到合适的词语来描述。能跟我说说具体发生了什么，或者你现在的感受是怎样的吗？😊 作为心理支持者，我很愿意倾听和理解你的困扰。有时候情绪上来时确实会难以...
+              - generic [ref=f6e137]:
+                - generic [ref=f6e138]: "2"
+                - generic [ref=f6e142]: 11 分钟
+            - button [ref=f6e149]
+          - generic [ref=f6e155] [cursor=pointer]:
+            - generic [ref=f6e156]:
+              - text: 宁渡AI助手 - 2026/8/10 13:19:01
+              - generic [ref=f6e157]: 我理解你可能想讨论一些重要的国家事务。不过作为心理健康助手，我更擅长帮助处理情绪、压力或人际关系等方面的问题。如果你最近感到焦虑或压力大，我很愿意倾听并提供支持。大学生活中有什么让你感到困扰的事情吗？...
+              - generic [ref=f6e158]:
+                - generic [ref=f6e159]: "2"
+                - generic [ref=f6e163]: 12 分钟
+            - button [ref=f6e170]
+          - generic [ref=f6e176] [cursor=pointer]:
+            - generic [ref=f6e177]:
+              - text: 宁渡AI助手 - 2026/8/10 13:18:32
+              - generic [ref=f6e178]: 我能感受到你似乎在反复提到"边防官兵"这个词。这让我很想知道,是什么让你特别关注这个群体呢?可以跟我多说一些你的想法吗? 边防官兵们确实承担着重要的职责,他们远离家乡,在艰苦的环境中守护着我们的边境...
+              - generic [ref=f6e179]:
+                - generic [ref=f6e180]: "2"
+                - generic [ref=f6e184]: 12 分钟
+            - button [ref=f6e191]
+          - generic [ref=f6e197] [cursor=pointer]:
+            - generic [ref=f6e198]:
+              - text: 宁渡AI助手 - 2026/8/10 13:14:37
+              - generic [ref=f6e199]: 我理解你可能在问"是多少"，但不太确定具体指的是什么数字呢？😊 作为你的心理健康小助手，我更关心的是： 你最近是不是遇到了什么困扰？或者有什么想和我聊的呢？无论是学习压力、人际关系，还是情绪问题，...
+              - generic [ref=f6e200]:
+                - generic [ref=f6e201]: "2"
+                - generic [ref=f6e205]: 16 分钟
+            - button [ref=f6e212]
+          - generic [ref=f6e218] [cursor=pointer]:
+            - generic [ref=f6e219]:
+              - text: 宁渡AI助手 - 2026/8/10 13:14:14
+              - generic [ref=f6e220]: 你好呀~看起来你似乎想和我聊聊什么呢？我在这里认真听着呢。 作为大学生，最近是不是遇到了什么烦心事？或者只是想找人说说话？无论是什么，我都会用温暖和理解的态度陪着你。 可以和我分享一下你现在的...
+              - generic [ref=f6e221]:
+                - generic [ref=f6e222]: "2"
+                - generic [ref=f6e226]: 17 分钟
+            - button [ref=f6e233]
+          - generic [ref=f6e239] [cursor=pointer]:
+            - generic [ref=f6e240]:
+              - text: 宁渡AI助手 - 2026/8/10 13:13:59
+              - generic [ref=f6e241]: 你好呀~很高兴见到你！😊 作为一名心理疏导师，我会耐心倾听你的任何困扰或烦恼。不论是学业压力、人际关系，还是其他方面的困惑，都可以放心地和我聊聊哦。 最近过得怎么样呢？有没有什么想和我分享的事情？...
+              - generic [ref=f6e242]:
+                - generic [ref=f6e243]: "2"
+                - generic [ref=f6e247]: 17 分钟
+            - button [ref=f6e254]
+    - generic [ref=f6e259]:
+      - generic [ref=f6e260]:
+        - generic [ref=f6e261]:
+          - img "logo" [ref=f6e264]
+          - generic [ref=f6e265]:
+            - heading "宁渡AI助手" [level=2] [ref=f6e266]
+            - paragraph [ref=f6e267]: 获取专业的心理健康建议
+        - button "创建新会话" [ref=f6e268] [cursor=pointer]
+      - generic [ref=f6e273]:
+        - generic [ref=f6e278]:
+          - paragraph [ref=f6e280]: 今天很开心
+          - generic [ref=f6e281]: 2026-08-10T05:31:42.412Z
+        - generic [ref=f6e286]:
+          - generic [ref=f6e287]: 听到你这么说，我也为你感到开心呢！😊 能和我分享一下是什么让你心情这么好吗？这样快乐的感觉真的很珍贵~ 如果是和朋友一起度过的美好时光，或者完成了什么让自己有成就感的事，不妨多回味一下这种愉悦的感觉哦。保持好心情的同时，也可以记下来是什么带给你这样的快乐，这样以后情绪低落时或许能帮到自己呢~ 愿这份快乐能持续陪伴你！也欢迎随时和我分享让你开心的小事哦~ 🌟
+          - generic [ref=f6e290]: 2026-08-10T05:31:42.412Z
+      - generic [ref=f6e291]:
+        - generic [ref=f6e292]:
+          - textbox "请输入想要分享的内容..." [ref=f6e294]
+          - generic [ref=f6e295]:
+            - generic [ref=f6e296]: 按Enter换行，Shift+Enter发送
+            - generic [ref=f6e297]: 0/500
+        - button [disabled] [ref=f6e298]
+  - paragraph [ref=f6e305]: 心理健康AI助手.All rights reserved © 2026

@@ -1,0 +1,26 @@
+- generic [ref=f5e3]:
+  - generic [ref=f5e4]:
+    - generic [ref=f5e5]:
+      - img "logo" [ref=f5e7]
+      - heading "心理健康AI助手" [level=1] [ref=f5e8]
+    - generic [ref=f5e9]:
+      - link "首页" [ref=f5e10] [cursor=pointer]:
+        - /url: /
+      - link "知识库" [ref=f5e11] [cursor=pointer]:
+        - /url: /knowledge
+      - link "登录" [ref=f5e12] [cursor=pointer]:
+        - /url: /auth/login
+      - link [ref=f5e13] [cursor=pointer]:
+        - /url: /auth/register
+        - button "注册" [ref=f5e14]
+  - generic [ref=f5e17]:
+    - generic [ref=f5e19]:
+      - img "Emotional Diary" [ref=f5e21]
+      - heading "知识库" [level=1] [ref=f5e22]
+    - generic [ref=f5e23]: 推荐阅读
+    - generic [ref=f5e28]:
+      - button "Go to previous page" [disabled] [ref=f5e29]
+      - list [ref=f5e30]:
+        - listitem "page 1" [ref=f5e31]: "1"
+      - button "Go to next page" [disabled] [ref=f5e32]
+  - paragraph [ref=f5e35]: 心理健康AI助手.All rights reserved © 2026
